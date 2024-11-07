@@ -6,12 +6,11 @@ use starknet::{ContractAddress};
 pub struct Player {
     #[key]
     pub address: ContractAddress,
-    pub player: u32,
     pub health: u32,
     pub demeanor: u8,
     pub attack_power: u8,
     pub special_attack: bool,
-    current_enemy: Enemy
+    current_enemy: UEnemy
 }
 
 #[derive(Copy, Drop, Serde)]
@@ -21,6 +20,15 @@ pub struct Enemy {
     pub uid: u32,
     pub health: u32,
     pub demeanor: u8,
+    pub attack_power: u8,
+    pub special_attack: bool,
+    pub level: u8,
+}
+
+#[derive(Copy, Drop, Serde, Introspect)]
+pub struct UEnemy {
+    pub uid: u32,
+    pub health: u32,
     pub attack_power: u8,
     pub special_attack: bool,
     pub level: u8,

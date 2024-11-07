@@ -1,5 +1,5 @@
 use starknet::{ContractAddress, get_caller_address, get_block_number, get_block_timestamp};
-use lutte::models::{player::Player, player::Enemy};
+use lutte::models::{player::Player, player::Enemy, player::UEnemy};
 use starknet::storage::{
     StoragePointerReadAccess, StoragePointerWriteAccess, Vec, VecTrait, MutableVecTrait
 };
@@ -8,18 +8,18 @@ use lutte::random::dice::{Dice, DiceTrait};
 
 #[starknet::interface]
 trait IBattleActions<T> {
-    fn offensive_phase(ref self: T, player: ContractAddress);
-    fn defensive_phase(ref self: T, player: ContractAddress);
-    fn get_user(self: @T, player: ContractAddress) -> Player;
-    fn create_enemy(
-        ref self: T, health: u32, demeanor: u8, attack_power: u8, level: u8
-    );
-    fn spawn(ref self: T) -> Player;
-    fn get_outcome(
-        ref self: T,
-        probability_weights: Array<(u32, felt252)>,
-        walletAddress: ContractAddress
-    ) -> felt252;
+    // fn offensive_phase(ref self: T, player: ContractAddress);
+    // fn defensive_phase(ref self: T, player: ContractAddress);
+    // fn get_user(self: @T, player: ContractAddress) -> Player;
+    // fn create_enemy(
+    //     ref self: T, health: u32, demeanor: u8, attack_power: u8, level: u8
+    // );
+    fn spawn(ref self: T);
+    // fn get_outcome(
+//     ref self: T,
+//     probability_weights: Array<(u32, felt252)>,
+//     walletAddress: ContractAddress
+// ) -> felt252;
 }
 
 const attack_probabilities_blue: [
@@ -52,13 +52,14 @@ const defense_probabilities_red_blue: [
 
 #[dojo::contract]
 mod actions {
+    use dojo::model::{ModelStorage, ModelValueStorage};
     use super::{IBattleActions};
     use super::{ContractAddress, get_caller_address};
-    use super::{Player, Enemy};
+    use super::{Player, Enemy, UEnemy};
     use super::{get_block_number, get_block_timestamp, Dice, DiceTrait};
     use super::{Vec, VecTrait};
 
-    let world = self.world(@"lutte");
+    // let world = self.world(@"lutte");
     // use super::{attack_probabilities_blue, attack_probabilities_green,
     // defense_probabilities_red_blue}
 
@@ -83,117 +84,148 @@ mod actions {
     }
 
     fn get_random_in_range(seed: ContractAddress, min: felt252, max: felt252) -> felt252 {
-        let random_value: felt252 = get_random_value(seed).try_into().unwrap();
+        let random_value: u32 = get_random_value(seed).try_into().unwrap();
         let range = max - min + 1;
-        return min + (random_value % range);
+
+        let converted_range: u32 = range.try_into().unwrap();
+        let converted_min: u32 = min.try_into().unwrap();
+
+        let result = random_value % converted_range;
+        let final_result = converted_min + result;
+        let converted_final_result: felt252 = final_result.try_into().unwrap();
+        return converted_final_result;
     }
 
 
     #[abi(embed_v0)]
     impl BattleImpl of super::IBattleActions<ContractState> {
-        fn spawn(ref world: IWorldDispatcher) -> Player {
-            let address = get_caller_address();
+        fn spawn(ref self: ContractState) {
+            let player = get_caller_address();
+            self.set_default_position(player);
+            // let mut existing_player = get!(world, (address), Player);
+        // if existing_player.health > 0 {
+        //     return existing_player;
+        // } else {
+        //     let enemy_id = world.uuid();
 
-            let mut existing_player = get!(world, (address), Player);
-            if existing_player.health > 0 {
-                return existing_player;
-            } else {
-                let enemy_id = world.uuid();
+            //     const initial_enemy: Enemy = Enemy {
+        //            enemy_id: 0,
+        //            health: 200,
+        //            demeanor: 14,
+        //            attack_power: 50,
+        //            special_attack: true,
+        //            level: 0,
+        //     };
 
-                const initial_enemy: Enemy = Enemy {
-                       enemy_id: 0,
-                       health: 200,
-                       demeanor: 14,
-                       attack_power: 50,
-                       special_attack: true,
-                       level: 0,
-                }; 
+            //     set!(
+        //         world,
+        //         Player {
+        //             address,
+        //             player,
+        //             health: 34,
+        //             special_attack: true,
+        //             attack_power: 35,
+        //             demeanor: 12,
+        //         }
+        //     );
+        //     existing_player = get!(world, (address), Player);
+        //     return existing_player;
+        // }
+        }
+        //     fn create_enemy(
+    //         ref world: IWorldDispatcher, health: u32, demeanor: u8, attack_power: u8, level:
+    //         u8
+    //     ) {
+    //         const caller: ContractAddress = get_caller_address();
+    //         const uid = world.uuid();
+    //         // assert(isOwner(caller), "Only Whitelisted Addresses can create Enemies");
+    //         set!(world, (Enemy{
+    //             uid, health, demeanor, attack_power, true, level
+    //         }));
+    //     }
 
+        //     // Offensive phase where player attacks
+    //     fn offensive_phase(ref world: IWorldDispatcher, player: ContractAddress) {
+    //         let mut player_data = get!(world, player, (Player));
 
-                set!(
-                    world,
-                    Player {
-                        address,
-                        player,
+        //         // Simulate an attack, adjust demeanor, and apply damage
+    //         player_data.demeanor += 3;
+    //         if player_data.demeanor > 20 {
+    //             player_data.demeanor = 20;
+    //         }
+
+        //         // Update world state after attack
+    //         set!(world, (player_data));
+    //     }
+
+        //     fn get_user(world: @IWorldDispatcher, player: ContractAddress) -> Player {
+    //         let existing_player = get!(world, (player), Player);
+    //         existing_player
+    //     }
+
+        //     // Defensive phase where player defends against an enemy attack
+    //     fn defensive_phase(ref world: IWorldDispatcher, player: ContractAddress) {
+    //         let mut player_data = get!(world, player, (Player));
+
+        //         // Simulate defense and reduce player's health if necessary
+    //         player_data.health -= 10; // example damage
+
+        //         // Update world state after defense
+    //         set!(world, (player_data));
+    //     }
+
+        //     fn get_outcome(
+    //         ref world: IWorldDispatcher,
+    //         probability_weights: Array<(u32, felt252)>,
+    //         walletAddress: ContractAddress
+    //     ) -> felt252 {
+    //         let random_number: u32 = get_random_value(walletAddress)
+    //             .try_into()
+    //             .unwrap(); // Generates a random number
+
+        //         // println!("hello {}", random_number);
+
+        //         let mut cumulative = 0_u32;
+    //         let mut outcome: felt252 = 0;
+
+        //         for (
+    //             weight, result
+    //         ) in probability_weights {
+    //             cumulative = cumulative + weight;
+    //             if random_number < cumulative {
+    //                 outcome = result;
+    //                 break;
+    //             }
+    //         };
+
+        //         return outcome;
+    //     }
+    }
+
+    #[generate_trait]
+    impl InternalImpl of InternalUtils {
+        fn set_default_position(self: @ContractState, player: ContractAddress) {
+            let mut world = self.world_default();
+
+            world
+                .write_model(
+                    @Player {
+                        address: player,
                         health: 34,
                         special_attack: true,
                         attack_power: 35,
                         demeanor: 12,
+                        current_enemy: UEnemy {
+                            uid: 0, health: 100, special_attack: true, level: 0, attack_power: 8
+                        }
                     }
                 );
-                existing_player = get!(world, (address), Player);
-                return existing_player;
-            }
         }
 
-
-        fn create_enemy(
-            ref world: IWorldDispatcher, health: u32, demeanor: u8, attack_power: u8, level: u8
-        ) {
-            const caller: ContractAddress = get_caller_address();
-            const uid = world.uuid();
-            // assert(isOwner(caller), "Only Whitelisted Addresses can create Enemies");
-            set!(world, (Enemy{
-                uid, health, demeanor, attack_power, true, level
-            }));
-        }
-
-
-        // Offensive phase where player attacks
-        fn offensive_phase(ref world: IWorldDispatcher, player: ContractAddress) {
-            let mut player_data = get!(world, player, (Player));
-
-            // Simulate an attack, adjust demeanor, and apply damage
-            player_data.demeanor += 3;
-            if player_data.demeanor > 20 {
-                player_data.demeanor = 20;
-            }
-
-            // Update world state after attack
-            set!(world, (player_data));
-        }
-
-        fn get_user(world: @IWorldDispatcher, player: ContractAddress) -> Player {
-            let existing_player = get!(world, (player), Player);
-            existing_player
-        }
-
-        // Defensive phase where player defends against an enemy attack
-        fn defensive_phase(ref world: IWorldDispatcher, player: ContractAddress) {
-            let mut player_data = get!(world, player, (Player));
-
-            // Simulate defense and reduce player's health if necessary
-            player_data.health -= 10; // example damage
-
-            // Update world state after defense
-            set!(world, (player_data));
-        }
-
-        fn get_outcome(
-            ref world: IWorldDispatcher,
-            probability_weights: Array<(u32, felt252)>,
-            walletAddress: ContractAddress
-        ) -> felt252 {
-            let random_number: u32 = get_random_value(walletAddress)
-                .try_into()
-                .unwrap(); // Generates a random number
-
-            // println!("hello {}", random_number);
-
-            let mut cumulative = 0_u32;
-            let mut outcome: felt252 = 0;
-
-            for (
-                weight, result
-            ) in probability_weights {
-                cumulative = cumulative + weight;
-                if random_number < cumulative {
-                    outcome = result;
-                    break;
-                }
-            };
-
-            return outcome;
+        /// Use the default namespace "ns". A function is handy since the ByteArray
+        /// can't be const.
+        fn world_default(self: @ContractState) -> dojo::world::WorldStorage {
+            self.world(@"lutte")
         }
     }
 }

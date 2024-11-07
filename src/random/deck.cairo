@@ -166,6 +166,9 @@ mod tests {
     #[test]
     fn test_deck_new_draw() {
         let mut deck = DeckTrait::new(DECK_SEED, DECK_CARDS_NUMBER);
+        // let initial_draw = deck.draw();
+        // println!("hey {initial_draw}");
+        println!("hellooooo");
         assert(deck.remaining == DECK_CARDS_NUMBER, 'Wrong remaining');
         assert(deck.draw() == 0x2, 'Wrong card 01');
         assert(deck.draw() == 0x4, 'Wrong card 02');
