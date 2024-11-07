@@ -1,0 +1,20 @@
+[world]
+name = "lutte"
+description = "The official Dojo Starter guide, the quickest and most streamlined way to get your Dojo Autonomous World up and running. This guide will assist you with the initial setup, from cloning the repository to deploying your world."
+cover_uri = "file://assets/cover.png"
+icon_uri = "file://assets/icon.png"
+website = "https://github.com/dojoengine/dojo-starter"
+seed = "lutte-arcade"
+
+
+[namespace]
+default = "lutte"
+
+[env]
+rpc_url = "https://free-rpc.nethermind.io/sepolia-juno/v0_7"
+# Default account for katana with seed = 0
+account_address = "0x049eE48eD0B2C31f22d1Aa8288dD3f65228F908d83AC63c3dCfbf8C5A3bf304c"
+private_key = "0x05ca7a3739ec424c4d10ada7d6715c4815bda09100bef0aca3f5d7fd093fca73"
+
+[writers]
+"lutte" = ["lutte-actions"]
