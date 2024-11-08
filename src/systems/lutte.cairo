@@ -140,12 +140,12 @@ mod actions {
             ref self: ContractState, health: u32, demeanor: u8, attack_power: u8, level: u8
         ) {
             let mut world = self.world_default();
-            const caller: ContractAddress = get_caller_address();
+            let caller = get_caller_address();
             // let mut uid = world.uuid();
             let mut uid = 0;
-            assert(self.is_owner(caller), "Only Whitelisted Addresses can create Enemies");
+            assert(self.is_owner(), 'unauthorised');
 
-            let new_enemy = Enemy { uid, health, demeanor, attack_power, level };
+            let new_enemy = UEnemy { uid, health, attack_power, level, special_attack: true };
             let first_enemy = EnemiesList { owner: caller, enemies: array![new_enemy] };
             world.write_model(@first_enemy);
         }
@@ -235,18 +235,26 @@ mod actions {
             self.world(@"lutte")
         }
 
+        // fn is_owner(self: @ContractState) -> bool {
+        //     let mut world = self.world_default();
+
+        //     let current_contract_selector = world.contract_selector(@self.dojo_name());
+
+        //     if world
+        //         .dispatcher
+        //         .is_owner(current_contract_selector, starknet::get_caller_address()) {
+        //         true
+        //     } else {
+        //         false
+        //     }
+        // }
+
         fn is_owner(self: @ContractState) -> bool {
             let mut world = self.world_default();
 
             let current_contract_selector = world.contract_selector(@self.dojo_name());
 
-            if world
-                .dispatcher
-                .is_owner(current_contract_selector, starknet::get_caller_address()) {
-                true
-            } else {
-                false
-            }
+            world.dispatcher.is_owner(current_contract_selector, starknet::get_caller_address())
         }
     }
 }

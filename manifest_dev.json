@@ -1122,7 +1122,7 @@
   "contracts": [
     {
       "address": "0x548f0a62cf7d5cd0ad5d01e009d309a2bf53bb08e7b59bd696dcb146d4dfdcf",
-      "class_hash": "0x492c1fb353f79e8faa5241a0890c2c7c75ad5283539d6b5651ca8d89d981c48",
+      "class_hash": "0x664955f1c60334648b3a101d43f3cef6724aabd6440aa46b09845c0f5392b30",
       "abi": [
         {
           "type": "impl",
@@ -1258,6 +1258,30 @@
                 }
               ],
               "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "create_first_enemy",
+              "inputs": [
+                {
+                  "name": "health",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "demeanor",
+                  "type": "core::integer::u8"
+                },
+                {
+                  "name": "attack_power",
+                  "type": "core::integer::u8"
+                },
+                {
+                  "name": "level",
+                  "type": "core::integer::u8"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
             },
             {
               "type": "function",
@@ -1409,6 +1433,11 @@
     }
   ],
   "models": [
+    {
+      "members": [],
+      "class_hash": "0x23bef75adb7e9fee13e64783e53b40bd7a24274d85d92af7f707d4737960869",
+      "tag": "EnemiesList"
+    },
     {
       "members": [],
       "class_hash": "0x731b032ee91175fd47fc0c3d6a349762772e26655d501fd641490b7c20fff1d",
