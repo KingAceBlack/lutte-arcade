@@ -25,7 +25,7 @@ pub struct Enemy {
     pub level: u8,
 }
 
-#[derive(Copy, Drop, Serde)]
+#[derive(Drop, Serde)]
 #[dojo::model]
 pub struct EnemiesList {
     #[key]

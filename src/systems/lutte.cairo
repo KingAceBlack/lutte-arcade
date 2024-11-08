@@ -11,7 +11,7 @@ trait IBattleActions<T> {
     // fn offensive_phase(ref self: T, player: ContractAddress);
     // fn defensive_phase(ref self: T, player: ContractAddress);
     fn get_user(self: @T, player: ContractAddress) -> Player;
-    fn create_first_enemy(ref self: T, health: u32, demeanor: u8, attack_power: u8, level: u8);
+    // fn create_first_enemy(ref self: T, health: u32, demeanor: u8, attack_power: u8, level: u8);
     fn spawn(ref self: T);
     fn get_outcome(
         ref self: T, probability_weights: Array<(u32, felt252)>, walletAddress: ContractAddress
@@ -48,6 +48,8 @@ const defense_probabilities_red_blue: [
 
 #[dojo::contract]
 mod actions {
+    use dojo::world::WorldStorageTrait;
+    use dojo::world::IWorldDispatcherTrait;
     use dojo::model::{ModelStorage, ModelValueStorage};
     use super::{IBattleActions};
     use super::{ContractAddress, get_caller_address};
@@ -133,19 +135,19 @@ mod actions {
         }
 
 
-        fn create_first_enemy(
-            ref self: ContractState, health: u32, demeanor: u8, attack_power: u8, level: u8
-        ) {
-            let mut world = self.world_default();
-            const caller: ContractAddress = get_caller_address();
-            // let mut uid = world.uuid();
-            let mut uid = 0;
-            assert(self.isOwner(caller), "Only Whitelisted Addresses can create Enemies");
+        // fn create_first_enemy(
+        //     ref self: ContractState, health: u32, demeanor: u8, attack_power: u8, level: u8
+        // ) {
+        //     let mut world = self.world_default();
+        //     const caller: ContractAddress = get_caller_address();
+        //     // let mut uid = world.uuid();
+        //     let mut uid = 0;
+        //     assert(self.isOwner(caller), "Only Whitelisted Addresses can create Enemies");
 
-            let new_enemy = Enemy { uid, health, demeanor, attack_power, level };
-            let first_enemy = EnemiesList { owner: caller, enemies: array![new_enemy] };
-            world.write_model(@first_enemy);
-        }
+        //     let new_enemy = Enemy { uid, health, demeanor, attack_power, level };
+        //     let first_enemy = EnemiesList { owner: caller, enemies: array![new_enemy] };
+        //     world.write_model(@first_enemy);
+        // }
 
         //     // Offensive phase where player attacks
         //     fn offensive_phase(ref world: IWorldDispatcher, player: ContractAddress) {
@@ -234,11 +236,14 @@ mod actions {
 
         fn isOwner(self: @ContractState) -> bool {
             let mut world = self.world_default();
+
             let current_contract_selector = world.contract_selector(self.name());
 
             if world
                 .dispatcher
-                .is_writer(current_contract_selector, starknet::get_caller_address()) {
+                .is_owner(
+                    resource: current_contract_selector, address: starknet::get_caller_address()
+                ) {
                 true
             } else {
                 false
