@@ -25,6 +25,14 @@ pub struct Enemy {
     pub level: u8,
 }
 
+#[derive(Copy, Drop, Serde)]
+#[dojo::model]
+pub struct EnemiesList {
+    #[key]
+    pub owner: ContractAddress,
+    pub enemies: Array<UEnemy>,
+}
+
 #[derive(Copy, Drop, Serde, Introspect)]
 pub struct UEnemy {
     pub uid: u32,

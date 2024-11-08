@@ -1,5 +1,5 @@
 use starknet::{ContractAddress, get_caller_address, get_block_number, get_block_timestamp};
-use lutte::models::{player::Player, player::Enemy, player::UEnemy};
+use lutte::models::{player::Player, player::Enemy, player::UEnemy, player::EnemiesList};
 use starknet::storage::{
     StoragePointerReadAccess, StoragePointerWriteAccess, Vec, VecTrait, MutableVecTrait
 };
@@ -10,16 +10,12 @@ use lutte::random::dice::{Dice, DiceTrait};
 trait IBattleActions<T> {
     // fn offensive_phase(ref self: T, player: ContractAddress);
     // fn defensive_phase(ref self: T, player: ContractAddress);
-    // fn get_user(self: @T, player: ContractAddress) -> Player;
-    // fn create_enemy(
-    //     ref self: T, health: u32, demeanor: u8, attack_power: u8, level: u8
-    // );
+    fn get_user(self: @T, player: ContractAddress) -> Player;
+    fn create_first_enemy(ref self: T, health: u32, demeanor: u8, attack_power: u8, level: u8);
     fn spawn(ref self: T);
-    // fn get_outcome(
-//     ref self: T,
-//     probability_weights: Array<(u32, felt252)>,
-//     walletAddress: ContractAddress
-// ) -> felt252;
+    fn get_outcome(
+        ref self: T, probability_weights: Array<(u32, felt252)>, walletAddress: ContractAddress
+    ) -> felt252;
 }
 
 const attack_probabilities_blue: [
@@ -55,7 +51,7 @@ mod actions {
     use dojo::model::{ModelStorage, ModelValueStorage};
     use super::{IBattleActions};
     use super::{ContractAddress, get_caller_address};
-    use super::{Player, Enemy, UEnemy};
+    use super::{Player, Enemy, UEnemy, EnemiesList};
     use super::{get_block_number, get_block_timestamp, Dice, DiceTrait};
     use super::{Vec, VecTrait};
 
@@ -63,10 +59,13 @@ mod actions {
     // use super::{attack_probabilities_blue, attack_probabilities_green,
     // defense_probabilities_red_blue}
 
-    // #[storage]
-    // struct Storage {
-    //     owner: ContractAddress
-    // }
+    #[storage]
+    struct Storage {
+        owner: ContractAddress,
+        enemies: Array<Enemy>
+    }
+
+    // either manage enemies in a struct or as a storage
 
     // #[constructor]
     // fn constructor() {}
@@ -132,74 +131,79 @@ mod actions {
         //     return existing_player;
         // }
         }
-        //     fn create_enemy(
-    //         ref world: IWorldDispatcher, health: u32, demeanor: u8, attack_power: u8, level:
-    //         u8
-    //     ) {
-    //         const caller: ContractAddress = get_caller_address();
-    //         const uid = world.uuid();
-    //         // assert(isOwner(caller), "Only Whitelisted Addresses can create Enemies");
-    //         set!(world, (Enemy{
-    //             uid, health, demeanor, attack_power, true, level
-    //         }));
-    //     }
+
+
+        fn create_first_enemy(
+            ref self: ContractState, health: u32, demeanor: u8, attack_power: u8, level: u8
+        ) {
+            let mut world = self.world_default();
+            const caller: ContractAddress = get_caller_address();
+            // let mut uid = world.uuid();
+            let mut uid = 0;
+            assert(self.isOwner(caller), "Only Whitelisted Addresses can create Enemies");
+
+            let new_enemy = Enemy { uid, health, demeanor, attack_power, level };
+            let first_enemy = EnemiesList { owner: caller, enemies: array![new_enemy] };
+            world.write_model(@first_enemy);
+        }
 
         //     // Offensive phase where player attacks
-    //     fn offensive_phase(ref world: IWorldDispatcher, player: ContractAddress) {
-    //         let mut player_data = get!(world, player, (Player));
+        //     fn offensive_phase(ref world: IWorldDispatcher, player: ContractAddress) {
+        //         let mut player_data = get!(world, player, (Player));
 
         //         // Simulate an attack, adjust demeanor, and apply damage
-    //         player_data.demeanor += 3;
-    //         if player_data.demeanor > 20 {
-    //             player_data.demeanor = 20;
-    //         }
+        //         player_data.demeanor += 3;
+        //         if player_data.demeanor > 20 {
+        //             player_data.demeanor = 20;
+        //         }
 
         //         // Update world state after attack
-    //         set!(world, (player_data));
-    //     }
+        //         set!(world, (player_data));
+        //     }
 
-        //     fn get_user(world: @IWorldDispatcher, player: ContractAddress) -> Player {
-    //         let existing_player = get!(world, (player), Player);
-    //         existing_player
-    //     }
-
+        fn get_user(self: @ContractState, player: ContractAddress) -> Player {
+            let mut world = self.world_default();
+            let existing_player: Player = world.read_model(player);
+            existing_player
+        }
         //     // Defensive phase where player defends against an enemy attack
-    //     fn defensive_phase(ref world: IWorldDispatcher, player: ContractAddress) {
-    //         let mut player_data = get!(world, player, (Player));
+        // fn defensive_phase(ref world: IWorldDispatcher, player: ContractAddress) {
+        //      let mut world = self.world_default();
+        //     let mut player_data: Player = world.read_model(player);
 
-        //         // Simulate defense and reduce player's health if necessary
-    //         player_data.health -= 10; // example damage
+        //     // Simulate defense and reduce player's health if necessary
+        //     player_data.health -= 10; // example damage
 
-        //         // Update world state after defense
-    //         set!(world, (player_data));
-    //     }
+        //     // Update world state after defense
+        //     set!(world, (player_data));
+        // }
 
-        //     fn get_outcome(
-    //         ref world: IWorldDispatcher,
-    //         probability_weights: Array<(u32, felt252)>,
-    //         walletAddress: ContractAddress
-    //     ) -> felt252 {
-    //         let random_number: u32 = get_random_value(walletAddress)
-    //             .try_into()
-    //             .unwrap(); // Generates a random number
+        fn get_outcome(
+            ref self: ContractState,
+            probability_weights: Array<(u32, felt252)>,
+            walletAddress: ContractAddress
+        ) -> felt252 {
+            let random_number: u32 = get_random_value(walletAddress)
+                .try_into()
+                .unwrap(); // Generates a random number
 
-        //         // println!("hello {}", random_number);
+            // println!("hello {}", random_number);
 
-        //         let mut cumulative = 0_u32;
-    //         let mut outcome: felt252 = 0;
+            let mut cumulative = 0_u32;
+            let mut outcome: felt252 = 0;
 
-        //         for (
-    //             weight, result
-    //         ) in probability_weights {
-    //             cumulative = cumulative + weight;
-    //             if random_number < cumulative {
-    //                 outcome = result;
-    //                 break;
-    //             }
-    //         };
+            for (
+                weight, result
+            ) in probability_weights {
+                cumulative = cumulative + weight;
+                if random_number < cumulative {
+                    outcome = result;
+                    break;
+                }
+            };
 
-        //         return outcome;
-    //     }
+            return outcome;
+        }
     }
 
     #[generate_trait]
@@ -216,7 +220,7 @@ mod actions {
                         attack_power: 35,
                         demeanor: 12,
                         current_enemy: UEnemy {
-                            uid: 0, health: 100, special_attack: true, level: 0, attack_power: 8
+                            uid: 0, health: 0, special_attack: true, level: 0, attack_power: 8
                         }
                     }
                 );
@@ -226,6 +230,19 @@ mod actions {
         /// can't be const.
         fn world_default(self: @ContractState) -> dojo::world::WorldStorage {
             self.world(@"lutte")
+        }
+
+        fn isOwner(self: @ContractState) -> bool {
+            let mut world = self.world_default();
+            let current_contract_selector = world.contract_selector(self.name());
+
+            if world
+                .dispatcher
+                .is_writer(current_contract_selector, starknet::get_caller_address()) {
+                true
+            } else {
+                false
+            }
         }
     }
 }

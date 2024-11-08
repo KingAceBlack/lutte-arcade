@@ -1122,7 +1122,7 @@
   "contracts": [
     {
       "address": "0x548f0a62cf7d5cd0ad5d01e009d309a2bf53bb08e7b59bd696dcb146d4dfdcf",
-      "class_hash": "0x8c3a293ce5af9595644f725fe289aaef79f714a8d2e8a79c82f9860886fcc6",
+      "class_hash": "0x492c1fb353f79e8faa5241a0890c2c7c75ad5283539d6b5651ca8d89d981c48",
       "abi": [
         {
           "type": "impl",
@@ -1170,14 +1170,120 @@
           "interface_name": "lutte::systems::lutte::IBattleActions"
         },
         {
+          "type": "enum",
+          "name": "core::bool",
+          "variants": [
+            {
+              "name": "False",
+              "type": "()"
+            },
+            {
+              "name": "True",
+              "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "lutte::models::player::UEnemy",
+          "members": [
+            {
+              "name": "uid",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "health",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "attack_power",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "special_attack",
+              "type": "core::bool"
+            },
+            {
+              "name": "level",
+              "type": "core::integer::u8"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "lutte::models::player::Player",
+          "members": [
+            {
+              "name": "address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "health",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "demeanor",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "attack_power",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "special_attack",
+              "type": "core::bool"
+            },
+            {
+              "name": "current_enemy",
+              "type": "lutte::models::player::UEnemy"
+            }
+          ]
+        },
+        {
           "type": "interface",
           "name": "lutte::systems::lutte::IBattleActions",
           "items": [
             {
               "type": "function",
+              "name": "get_user",
+              "inputs": [
+                {
+                  "name": "player",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "lutte::models::player::Player"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
               "name": "spawn",
               "inputs": [],
               "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "get_outcome",
+              "inputs": [
+                {
+                  "name": "probability_weights",
+                  "type": "core::array::Array::<(core::integer::u32, core::felt252)>"
+                },
+                {
+                  "name": "walletAddress",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::felt252"
+                }
+              ],
               "state_mutability": "external"
             }
           ]
