@@ -48,6 +48,7 @@ const defense_probabilities_red_blue: [
 
 #[dojo::contract]
 mod actions {
+    use dojo::model::IModel;
     use dojo::world::WorldStorageTrait;
     use dojo::world::IWorldDispatcherTrait;
     use dojo::model::{ModelStorage, ModelValueStorage};
@@ -237,7 +238,7 @@ mod actions {
         fn isOwner(self: @ContractState) -> bool {
             let mut world = self.world_default();
 
-            let current_contract_selector = world.contract_selector(self.name());
+            let current_contract_selector = world.contract_selector(@self.dojo_name());
 
             if world
                 .dispatcher
