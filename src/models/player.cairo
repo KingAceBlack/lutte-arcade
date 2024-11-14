@@ -10,8 +10,11 @@ pub struct Player {
     pub demeanor: u8,
     pub attack_power: u8,
     pub special_attack: bool,
-    current_enemy: UEnemy
+    current_enemy: UEnemy,
+    skin: u8
 }
+
+// skin can be 1, 2, 3
 
 #[derive(Copy, Drop, Serde)]
 #[dojo::model]
@@ -19,7 +22,6 @@ pub struct Enemy {
     #[key]
     pub uid: u32,
     pub health: u32,
-    pub demeanor: u8,
     pub attack_power: u8,
     pub special_attack: bool,
     pub level: u8,

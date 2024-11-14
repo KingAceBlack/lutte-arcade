@@ -1122,7 +1122,7 @@
   "contracts": [
     {
       "address": "0x548f0a62cf7d5cd0ad5d01e009d309a2bf53bb08e7b59bd696dcb146d4dfdcf",
-      "class_hash": "0x664955f1c60334648b3a101d43f3cef6724aabd6440aa46b09845c0f5392b30",
+      "class_hash": "0x653de1ec6943ce4d32ba22a70c09608587e65fe0145c13004e44ad5fa4a6239",
       "abi": [
         {
           "type": "impl",
@@ -1236,6 +1236,10 @@
             {
               "name": "current_enemy",
               "type": "lutte::models::player::UEnemy"
+            },
+            {
+              "name": "skin",
+              "type": "core::integer::u8"
             }
           ]
         },
@@ -1243,6 +1247,24 @@
           "type": "interface",
           "name": "lutte::systems::lutte::IBattleActions",
           "items": [
+            {
+              "type": "function",
+              "name": "offensive_phase",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "(core::felt252, core::integer::u32, core::integer::u32)"
+                }
+              ],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "defensive_phase",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
             {
               "type": "function",
               "name": "get_user",
@@ -1288,26 +1310,6 @@
               "name": "spawn",
               "inputs": [],
               "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "get_outcome",
-              "inputs": [
-                {
-                  "name": "probability_weights",
-                  "type": "core::array::Array::<(core::integer::u32, core::felt252)>"
-                },
-                {
-                  "name": "walletAddress",
-                  "type": "core::starknet::contract_address::ContractAddress"
-                }
-              ],
-              "outputs": [
-                {
-                  "type": "core::felt252"
-                }
-              ],
               "state_mutability": "external"
             }
           ]
@@ -1440,12 +1442,12 @@
     },
     {
       "members": [],
-      "class_hash": "0x731b032ee91175fd47fc0c3d6a349762772e26655d501fd641490b7c20fff1d",
+      "class_hash": "0x3dcfc863fcbf333bf3087efd15b9c0ed52572e43ed232fe75bb85a7c6565a8a",
       "tag": "Enemy"
     },
     {
       "members": [],
-      "class_hash": "0xc772a2bbca63c5bbac73168bb636f51cc7acc099a9e2857131f442058c311",
+      "class_hash": "0x38ef2b7cd6e83d3c1f151b66a8ff6a1413f49683d59578ffd9febb852b60b0b",
       "tag": "Player"
     },
     {
