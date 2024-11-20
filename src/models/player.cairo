@@ -31,8 +31,26 @@ pub struct Enemy {
 #[dojo::model]
 pub struct EnemiesList {
     #[key]
-    pub owner: ContractAddress,
+    pub id: u8,
     pub enemies: Array<UEnemy>,
+}
+
+#[derive(Drop, Serde)]
+#[dojo::model]
+pub struct PlayableCharacterList {
+    #[key]
+    pub id: u8,
+    pub players: Array<PlayableCharacter>,
+}
+
+#[derive(Drop, Serde, Introspect)]
+pub struct PlayableCharacter {
+    pub uid: u8,
+    pub skin: ByteArray,
+    pub health: u32,
+    pub attack_power: u8,
+    pub special_attack: bool,
+    pub level: u8,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]

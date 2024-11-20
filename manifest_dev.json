@@ -1122,7 +1122,7 @@
   "contracts": [
     {
       "address": "0x548f0a62cf7d5cd0ad5d01e009d309a2bf53bb08e7b59bd696dcb146d4dfdcf",
-      "class_hash": "0x653de1ec6943ce4d32ba22a70c09608587e65fe0145c13004e44ad5fa4a6239",
+      "class_hash": "0x6c4f14055575f674641bf31e2659fd65d791333b0e04087207385b97d87eeb2",
       "abi": [
         {
           "type": "impl",
@@ -1180,6 +1180,36 @@
             {
               "name": "True",
               "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "lutte::models::player::PlayableCharacter",
+          "members": [
+            {
+              "name": "uid",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "skin",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "health",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "attack_power",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "special_attack",
+              "type": "core::bool"
+            },
+            {
+              "name": "level",
+              "type": "core::integer::u8"
             }
           ]
         },
@@ -1260,6 +1290,28 @@
             },
             {
               "type": "function",
+              "name": "fetch_playable_characters",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "core::array::Array::<lutte::models::player::PlayableCharacter>"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "fetch_enemies",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "core::array::Array::<lutte::models::player::UEnemy>"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
               "name": "defensive_phase",
               "inputs": [],
               "outputs": [],
@@ -1299,6 +1351,26 @@
                 },
                 {
                   "name": "level",
+                  "type": "core::integer::u8"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "create_first_character",
+              "inputs": [
+                {
+                  "name": "skin",
+                  "type": "core::byte_array::ByteArray"
+                },
+                {
+                  "name": "health",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "attack_power",
                   "type": "core::integer::u8"
                 }
               ],
@@ -1437,13 +1509,18 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x23bef75adb7e9fee13e64783e53b40bd7a24274d85d92af7f707d4737960869",
+      "class_hash": "0x3ee2797bd6e7b4efc5f4329227032bc97bba6bfab72a8687a60e37080400c83",
       "tag": "EnemiesList"
     },
     {
       "members": [],
       "class_hash": "0x3dcfc863fcbf333bf3087efd15b9c0ed52572e43ed232fe75bb85a7c6565a8a",
       "tag": "Enemy"
+    },
+    {
+      "members": [],
+      "class_hash": "0x834bc9c26ffa0f5ef233d6cce7009fe7f5c9684d78e30abdace064dec342fc",
+      "tag": "PlayableCharacterList"
     },
     {
       "members": [],

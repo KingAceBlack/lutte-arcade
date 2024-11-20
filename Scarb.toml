@@ -29,3 +29,6 @@ dojo_cairo_test = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.0-rc
 rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
 account_address = "0x049eE48eD0B2C31f22d1Aa8288dD3f65228F908d83AC63c3dCfbf8C5A3bf304c"
 private_key = "0x05ca7a3739ec424c4d10ada7d6715c4815bda09100bef0aca3f5d7fd093fca73"
+
+[tool.voyager]
+lutte = { path = "lib.cairo" }

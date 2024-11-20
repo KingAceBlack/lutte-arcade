@@ -1,17 +1,24 @@
 use starknet::{ContractAddress, get_caller_address, get_block_number, get_block_timestamp};
-use lutte::models::{player::Player, player::Enemy, player::UEnemy, player::EnemiesList};
+use lutte::models::{
+    player::Player, player::Enemy, player::UEnemy, player::EnemiesList, player::PlayableCharacter,
+    player::PlayableCharacterList
+};
 use starknet::storage::{
     StoragePointerReadAccess, StoragePointerWriteAccess, Vec, VecTrait, MutableVecTrait
 };
+
 use lutte::random::dice::{Dice, DiceTrait};
 // use core::{ArrayTrait, Array};
 
 #[starknet::interface]
 trait IBattleActions<T> {
     fn offensive_phase(ref self: T) -> (felt252, u32, u32);
+    fn fetch_playable_characters(self: @T) -> Array<PlayableCharacter>;
+    fn fetch_enemies(self: @T) -> Array<UEnemy>;
     fn defensive_phase(ref self: T);
     fn get_user(self: @T, player: ContractAddress) -> Player;
     fn create_first_enemy(ref self: T, health: u32, demeanor: u8, attack_power: u8, level: u8);
+    fn create_first_character(ref self: T, skin: ByteArray, health: u32, attack_power: u8,);
     fn spawn(ref self: T);
     // fn get_outcome(
 //     ref self: T, probability_weights: Array<(u32, felt252)>, walletAddress: ContractAddress
@@ -85,16 +92,16 @@ mod actions {
     use dojo::model::{ModelStorage, ModelValueStorage};
     use super::{IBattleActions};
     use super::{ContractAddress, get_caller_address};
-    use super::{Player, Enemy, UEnemy, EnemiesList};
+    use super::{Player, Enemy, UEnemy, EnemiesList, PlayableCharacter, PlayableCharacterList};
     use super::{get_block_number, get_block_timestamp, Dice, DiceTrait};
     use super::{Vec, VecTrait};
 
 
-    #[storage]
-    struct Storage {
-        owner: ContractAddress,
-        enemies: Array<Enemy>
-    }
+    // #[storage]
+    // struct Storage {
+    //     owner: ContractAddress,
+    //     enemies: Array<Enemy>
+    // }
 
     // either manage enemies in a struct or as a storage
 
@@ -134,50 +141,50 @@ mod actions {
         fn spawn(ref self: ContractState) {
             let player = get_caller_address();
             self.set_default_position(player);
-            // let mut existing_player = get!(world, (address), Player);
-        // if existing_player.health > 0 {
-        //     return existing_player;
-        // } else {
-        //     let enemy_id = world.uuid();
-
-            //     const initial_enemy: Enemy = Enemy {
-        //            enemy_id: 0,
-        //            health: 200,
-        //            demeanor: 14,
-        //            attack_power: 50,
-        //            special_attack: true,
-        //            level: 0,
-        //     };
-
-            //     set!(
-        //         world,
-        //         Player {
-        //             address,
-        //             player,
-        //             health: 34,
-        //             special_attack: true,
-        //             attack_power: 35,
-        //             demeanor: 12,
-        //         }
-        //     );
-        //     existing_player = get!(world, (address), Player);
-        //     return existing_player;
-        // }
         }
 
+        fn fetch_enemies(self: @ContractState) -> Array<UEnemy> {
+            let mut world = self.world_default();
+            let id = 0_u8;
+
+            let mut enemies_list: EnemiesList = world.read_model(id);
+            return enemies_list.enemies;
+        }
+
+        fn fetch_playable_characters(self: @ContractState) -> Array<PlayableCharacter> {
+            let mut world = self.world_default();
+            let id = 0_u8;
+
+            let mut playable_charactr_list: PlayableCharacterList = world.read_model(id);
+            return playable_charactr_list.players;
+        }
 
         fn create_first_enemy(
             ref self: ContractState, health: u32, demeanor: u8, attack_power: u8, level: u8
         ) {
             let mut world = self.world_default();
-            let caller = get_caller_address();
+            // let caller = get_caller_address();
             // let mut uid = world.uuid();
             let mut uid = 0;
             assert(self.is_owner(), 'unauthorised');
 
             let new_enemy = UEnemy { uid, health, attack_power, level, special_attack: true };
-            let first_enemy = EnemiesList { owner: caller, enemies: array![new_enemy] };
+            let first_enemy = EnemiesList { id: 0_u8, enemies: array![new_enemy] };
             world.write_model(@first_enemy);
+        }
+
+        fn create_first_character(
+            ref self: ContractState, skin: ByteArray, health: u32, attack_power: u8,
+        ) {
+            let mut world = self.world_default();
+            let mut uid = 0_u8;
+            assert(self.is_owner(), 'unauthorised');
+            let new_character = PlayableCharacter {
+                uid, health, attack_power, level: 0_u8, special_attack: true, skin
+            };
+
+            let first_character = PlayableCharacterList { id: uid, players: array![new_character] };
+            world.write_model(@first_character);
         }
 
         //     // Offensive phase where player attacks
@@ -253,13 +260,13 @@ mod actions {
                 // Glazed Attack
                 player_data.demeanor += 1; // Minor boost
                 user_enemy.health -= 5; // Small amount of damage
-            } else if outcome == 3 {// Missed Attack
+            } else if outcome == 3 { // Missed Attack
             // No demeanor change or health deduction
             } else if outcome == 4 {
                 // Critical Attack
                 player_data.demeanor += 5; // Higher boost
                 user_enemy.health -= 30; // Higher damage (10+ extra HP)
-            } else {// Default case, should not occur
+            } else { // Default case, should not occur
             }
 
             // Ensure demeanor does not exceed maximum
