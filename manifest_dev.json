@@ -1122,7 +1122,7 @@
   "contracts": [
     {
       "address": "0x548f0a62cf7d5cd0ad5d01e009d309a2bf53bb08e7b59bd696dcb146d4dfdcf",
-      "class_hash": "0x6c4f14055575f674641bf31e2659fd65d791333b0e04087207385b97d87eeb2",
+      "class_hash": "0x7ddcf9c915fdd50414f00bd05210a081e392799dc28eac906c84cb197cf7440",
       "abi": [
         {
           "type": "impl",

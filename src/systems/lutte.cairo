@@ -178,7 +178,7 @@ mod actions {
         ) {
             let mut world = self.world_default();
             let mut uid = 0_u8;
-            assert(self.is_owner(), 'unauthorised');
+            // assert(self.is_owner(), 'unauthorised');
             let new_character = PlayableCharacter {
                 uid, health, attack_power, level: 0_u8, special_attack: true, skin
             };
