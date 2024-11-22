@@ -1,9 +1,32 @@
 {
   "world": {
-    "class_hash": "0x139239a99d627697b19b9856beaef7896fc75375caf3d750dd76982a7afeb78",
-    "address": "0x4bc2dfbfe8b23ebe8078953c2ec5dfeeb0e6111110400d708da7fae768dd972",
+    "class_hash": "0x79d9ce84b97bcc2a631996c3100d57966fc2f5b061fb1ec4dfd0040976bcac6",
+    "address": "0x14cad07ef5c507b8fc6f47faa5eea385fa712eef54901eedc49048a8c71a7f9",
     "seed": "lutte-arcade",
     "name": "lutte",
+    "entrypoints": [
+      "uuid",
+      "set_metadata",
+      "register_namespace",
+      "register_event",
+      "register_model",
+      "register_contract",
+      "init_contract",
+      "upgrade_event",
+      "upgrade_model",
+      "upgrade_contract",
+      "emit_event",
+      "emit_events",
+      "set_entity",
+      "set_entities",
+      "delete_entity",
+      "delete_entities",
+      "grant_owner",
+      "revoke_owner",
+      "grant_writer",
+      "revoke_writer",
+      "upgrade"
+    ],
     "abi": [
       {
         "type": "impl",
@@ -83,16 +106,12 @@
         ]
       },
       {
-        "type": "enum",
-        "name": "core::bool",
-        "variants": [
+        "type": "struct",
+        "name": "core::array::Span::<core::array::Span::<core::felt252>>",
+        "members": [
           {
-            "name": "False",
-            "type": "()"
-          },
-          {
-            "name": "True",
-            "type": "()"
+            "name": "snapshot",
+            "type": "@core::array::Array::<core::array::Span::<core::felt252>>"
           }
         ]
       },
@@ -185,6 +204,30 @@
           {
             "name": "Enum",
             "type": "core::array::Span::<dojo::meta::layout::FieldLayout>"
+          }
+        ]
+      },
+      {
+        "type": "struct",
+        "name": "core::array::Span::<dojo::model::definition::ModelIndex>",
+        "members": [
+          {
+            "name": "snapshot",
+            "type": "@core::array::Array::<dojo::model::definition::ModelIndex>"
+          }
+        ]
+      },
+      {
+        "type": "enum",
+        "name": "core::bool",
+        "variants": [
+          {
+            "name": "False",
+            "type": "()"
+          },
+          {
+            "name": "True",
+            "type": "()"
           }
         ]
       },
@@ -398,10 +441,26 @@
               {
                 "name": "values",
                 "type": "core::array::Span::<core::felt252>"
+              }
+            ],
+            "outputs": [],
+            "state_mutability": "external"
+          },
+          {
+            "type": "function",
+            "name": "emit_events",
+            "inputs": [
+              {
+                "name": "event_selector",
+                "type": "core::felt252"
               },
               {
-                "name": "historical",
-                "type": "core::bool"
+                "name": "keys",
+                "type": "core::array::Span::<core::array::Span::<core::felt252>>"
+              },
+              {
+                "name": "values",
+                "type": "core::array::Span::<core::array::Span::<core::felt252>>"
               }
             ],
             "outputs": [],
@@ -433,6 +492,30 @@
           },
           {
             "type": "function",
+            "name": "entities",
+            "inputs": [
+              {
+                "name": "model_selector",
+                "type": "core::felt252"
+              },
+              {
+                "name": "indexes",
+                "type": "core::array::Span::<dojo::model::definition::ModelIndex>"
+              },
+              {
+                "name": "layout",
+                "type": "dojo::meta::layout::Layout"
+              }
+            ],
+            "outputs": [
+              {
+                "type": "core::array::Span::<core::array::Span::<core::felt252>>"
+              }
+            ],
+            "state_mutability": "view"
+          },
+          {
+            "type": "function",
             "name": "set_entity",
             "inputs": [
               {
@@ -457,6 +540,30 @@
           },
           {
             "type": "function",
+            "name": "set_entities",
+            "inputs": [
+              {
+                "name": "model_selector",
+                "type": "core::felt252"
+              },
+              {
+                "name": "indexes",
+                "type": "core::array::Span::<dojo::model::definition::ModelIndex>"
+              },
+              {
+                "name": "values",
+                "type": "core::array::Span::<core::array::Span::<core::felt252>>"
+              },
+              {
+                "name": "layout",
+                "type": "dojo::meta::layout::Layout"
+              }
+            ],
+            "outputs": [],
+            "state_mutability": "external"
+          },
+          {
+            "type": "function",
             "name": "delete_entity",
             "inputs": [
               {
@@ -466,6 +573,26 @@
               {
                 "name": "index",
                 "type": "dojo::model::definition::ModelIndex"
+              },
+              {
+                "name": "layout",
+                "type": "dojo::meta::layout::Layout"
+              }
+            ],
+            "outputs": [],
+            "state_mutability": "external"
+          },
+          {
+            "type": "function",
+            "name": "delete_entities",
+            "inputs": [
+              {
+                "name": "model_selector",
+                "type": "core::felt252"
+              },
+              {
+                "name": "indexes",
+                "type": "core::array::Span::<dojo::model::definition::ModelIndex>"
               },
               {
                 "name": "layout",
@@ -850,11 +977,6 @@
             "kind": "key"
           },
           {
-            "name": "historical",
-            "type": "core::bool",
-            "kind": "key"
-          },
-          {
             "name": "keys",
             "type": "core::array::Span::<core::felt252>",
             "kind": "data"
@@ -1121,13 +1243,23 @@
   },
   "contracts": [
     {
-      "address": "0x548f0a62cf7d5cd0ad5d01e009d309a2bf53bb08e7b59bd696dcb146d4dfdcf",
-      "class_hash": "0x7ddcf9c915fdd50414f00bd05210a081e392799dc28eac906c84cb197cf7440",
+      "address": "0xdfc0b05213539e2b70756b30d423bdb5689c9ea956f782eae55cfbe7f9934f",
+      "class_hash": "0x5ee0f490d71757e0e34b91842d6f97b494a57184c9d1d4c09b838264a682c26",
       "abi": [
         {
           "type": "impl",
           "name": "actions__ContractImpl",
           "interface_name": "dojo::contract::interface::IContract"
+        },
+        {
+          "type": "interface",
+          "name": "dojo::contract::interface::IContract",
+          "items": []
+        },
+        {
+          "type": "impl",
+          "name": "actions__DeployedContractImpl",
+          "interface_name": "dojo::meta::interface::IDeployedResource"
         },
         {
           "type": "struct",
@@ -1149,7 +1281,7 @@
         },
         {
           "type": "interface",
-          "name": "dojo::contract::interface::IContract",
+          "name": "dojo::meta::interface::IDeployedResource",
           "items": [
             {
               "type": "function",
@@ -1338,19 +1470,15 @@
               "name": "create_first_enemy",
               "inputs": [
                 {
+                  "name": "skin",
+                  "type": "core::byte_array::ByteArray"
+                },
+                {
                   "name": "health",
                   "type": "core::integer::u32"
                 },
                 {
-                  "name": "demeanor",
-                  "type": "core::integer::u8"
-                },
-                {
                   "name": "attack_power",
-                  "type": "core::integer::u8"
-                },
-                {
-                  "name": "level",
                   "type": "core::integer::u8"
                 }
               ],
@@ -1371,6 +1499,54 @@
                 },
                 {
                   "name": "attack_power",
+                  "type": "core::integer::u8"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "create_character",
+              "inputs": [
+                {
+                  "name": "skin",
+                  "type": "core::byte_array::ByteArray"
+                },
+                {
+                  "name": "health",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "attack_power",
+                  "type": "core::integer::u8"
+                },
+                {
+                  "name": "level",
+                  "type": "core::integer::u8"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "create_enemy",
+              "inputs": [
+                {
+                  "name": "skin",
+                  "type": "core::byte_array::ByteArray"
+                },
+                {
+                  "name": "health",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "attack_power",
+                  "type": "core::integer::u8"
+                },
+                {
+                  "name": "level",
                   "type": "core::integer::u8"
                 }
               ],
@@ -1503,39 +1679,55 @@
       ],
       "init_calldata": [],
       "tag": "lutte-actions",
-      "systems": []
+      "selector": "0x1804101b411b40c8be0528ad634db8ab4c3fe47e18fa1f774d0c90a0b78ccab",
+      "systems": [
+        "offensive_phase",
+        "defensive_phase",
+        "create_first_enemy",
+        "create_first_character",
+        "create_character",
+        "create_enemy",
+        "spawn",
+        "upgrade"
+      ]
     }
   ],
   "models": [
     {
       "members": [],
-      "class_hash": "0x3ee2797bd6e7b4efc5f4329227032bc97bba6bfab72a8687a60e37080400c83",
-      "tag": "EnemiesList"
+      "class_hash": "0x502808f672606798fc891bea22bc9c7f685a08bff5d01b43accd3a5df1bd14a",
+      "tag": "lutte-EnemiesList",
+      "selector": "0x2ccf077fa97585c3dd51d038fa1e6a8deaa77d9ad24c068462035dde4d16be9"
     },
     {
       "members": [],
-      "class_hash": "0x3dcfc863fcbf333bf3087efd15b9c0ed52572e43ed232fe75bb85a7c6565a8a",
-      "tag": "Enemy"
+      "class_hash": "0x7a946a4566237571dff1fc9be586e94f5d68f66652ea738f9b138e31fc1781d",
+      "tag": "lutte-Enemy",
+      "selector": "0x5e8455d13393e0a620670348931a6aea86190e702a5955088e8f44851b2e6f6"
     },
     {
       "members": [],
-      "class_hash": "0x834bc9c26ffa0f5ef233d6cce7009fe7f5c9684d78e30abdace064dec342fc",
-      "tag": "PlayableCharacterList"
+      "class_hash": "0x50e54dc38780a4ff5ebaa35e1390c217e6b4702a0a9599ed16444a9963a858c",
+      "tag": "lutte-PlayableCharacterList",
+      "selector": "0x6b018d4d35e74133968fc43665e34613efd5228fb9cfccfd97aefe9cf2599"
     },
     {
       "members": [],
-      "class_hash": "0x38ef2b7cd6e83d3c1f151b66a8ff6a1413f49683d59578ffd9febb852b60b0b",
-      "tag": "Player"
+      "class_hash": "0x371e1f7dcc2a3ccc0cdac446aee110e2cd08dd243ac62686aba895fac5c3ee3",
+      "tag": "lutte-Player",
+      "selector": "0x69d4345925d69b0ebbd11a22b726eedcdf6555dc38890062965eb0c36fc2bfd"
     },
     {
       "members": [],
-      "class_hash": "0x482d113b5542310c298abe2dd52827eec405ac4eaf9d7f6044b75a52f64f63d",
-      "tag": "Session"
+      "class_hash": "0x48d77ca566c6a11f535c4f264b29edd9dc3625548dc747b4c5c576adbf94434",
+      "tag": "lutte-Session",
+      "selector": "0x75d642f936ff9e0052617045c34d09c555f785e18cb420540804faf1e3db7a7"
     },
     {
       "members": [],
-      "class_hash": "0x44b456ecf565ccf25e0b0d1f4ed2b65e7e8b0a3c176d36785aa5693e78baa3e",
-      "tag": "SessionDetail"
+      "class_hash": "0x641c99284a01ab0bddd727f3688b37f5b276049a4dd1dfdba56bf6ec85697f6",
+      "tag": "lutte-SessionDetail",
+      "selector": "0x3557a32f12a855df2658076cf346745c6948562846023b7706343a2e39e4442"
     }
   ],
   "events": []

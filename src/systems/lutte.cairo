@@ -17,8 +17,10 @@ trait IBattleActions<T> {
     fn fetch_enemies(self: @T) -> Array<UEnemy>;
     fn defensive_phase(ref self: T);
     fn get_user(self: @T, player: ContractAddress) -> Player;
-    fn create_first_enemy(ref self: T, health: u32, demeanor: u8, attack_power: u8, level: u8);
-    fn create_first_character(ref self: T, skin: ByteArray, health: u32, attack_power: u8,);
+    fn create_first_enemy(ref self: T, skin: ByteArray, health: u32, attack_power: u8,);
+    fn create_first_character(ref self: T, skin: ByteArray, health: u32, attack_power: u8);
+    fn create_character(ref self: T, skin: ByteArray, health: u32, attack_power: u8, level: u8);
+    fn create_enemy(ref self: T, skin: ByteArray, health: u32, attack_power: u8, level: u8);
     fn spawn(ref self: T);
     // fn get_outcome(
 //     ref self: T, probability_weights: Array<(u32, felt252)>, walletAddress: ContractAddress
@@ -160,7 +162,7 @@ mod actions {
         }
 
         fn create_first_enemy(
-            ref self: ContractState, health: u32, demeanor: u8, attack_power: u8, level: u8
+            ref self: ContractState, skin: ByteArray, health: u32, attack_power: u8,
         ) {
             let mut world = self.world_default();
             // let caller = get_caller_address();
@@ -168,7 +170,7 @@ mod actions {
             let mut uid = 0;
             assert(self.is_owner(), 'unauthorised');
 
-            let new_enemy = UEnemy { uid, health, attack_power, level, special_attack: true };
+            let new_enemy = UEnemy { uid, health, attack_power, level: 0_u8, special_attack: true };
             let first_enemy = EnemiesList { id: 0_u8, enemies: array![new_enemy] };
             world.write_model(@first_enemy);
         }
@@ -185,6 +187,54 @@ mod actions {
 
             let first_character = PlayableCharacterList { id: uid, players: array![new_character] };
             world.write_model(@first_character);
+        }
+
+        fn create_character(
+            ref self: ContractState, skin: ByteArray, health: u32, attack_power: u8, level: u8
+        ) {
+            let mut world = self.world_default();
+
+            let mut world_characters: PlayableCharacterList = world.read_model(0_u8);
+            let mut current_characters: Array::<PlayableCharacter> = world_characters.players;
+
+            current_characters
+                .append(
+                    PlayableCharacter {
+                        uid: (current_characters.len() + 1).try_into().unwrap(),
+                        skin,
+                        health,
+                        attack_power,
+                        level,
+                        special_attack: true
+                    }
+                );
+
+            world_characters = PlayableCharacterList { id: 0, players: current_characters };
+
+            world.write_model(@world_characters);
+        }
+        fn create_enemy(
+            ref self: ContractState, skin: ByteArray, health: u32, attack_power: u8, level: u8
+        ) {
+            let mut world = self.world_default();
+
+            let mut world_enemies: EnemiesList = world.read_model(0_u8);
+            let mut current_enemies: Array::<UEnemy> = world_enemies.enemies;
+
+            current_enemies
+                .append(
+                    UEnemy {
+                        uid: (current_enemies.len() + 1).try_into().unwrap(),
+                        health,
+                        attack_power,
+                        level,
+                        special_attack: true
+                    }
+                );
+
+            world_enemies = EnemiesList { id: 0, enemies: current_enemies };
+
+            world.write_model(@world_enemies);
         }
 
         //     // Offensive phase where player attacks
@@ -357,24 +407,11 @@ mod actions {
             self.world(@"lutte")
         }
 
-        // fn is_owner(self: @ContractState) -> bool {
-        //     let mut world = self.world_default();
-
-        //     let current_contract_selector = world.contract_selector(@self.dojo_name());
-
-        //     if world
-        //         .dispatcher
-        //         .is_owner(current_contract_selector, starknet::get_caller_address()) {
-        //         true
-        //     } else {
-        //         false
-        //     }
-        // }
 
         fn is_owner(self: @ContractState) -> bool {
             let mut world = self.world_default();
 
-            let current_contract_selector = world.contract_selector(@self.dojo_name());
+            let current_contract_selector = world.resource_selector(@self.dojo_name());
 
             world.dispatcher.is_owner(current_contract_selector, starknet::get_caller_address())
         }

@@ -8,11 +8,11 @@ version = "0.0.0"
 sierra-replace-ids = true
 
 [scripts]
-migrate = "sozo build && sozo migrate --rpc-url https://api.cartridge.gg/x/starknet/sepolia --world 0x04bc2dfbfe8b23ebe8078953c2ec5dfeeb0e6111110400d708da7fae768dd972"
+migrate = "sozo build && sozo migrate --fee eth && sozo inspect"
 
 
 [dependencies]
-dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.0-rc.1" }
+dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.1" }
 
 
 [tool.dojo]
@@ -23,7 +23,7 @@ build-external-contracts = ["dojo::world::world_contract::world"]
 
 
 [dev-dependencies]
-dojo_cairo_test = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.0-rc.1" }
+dojo_cairo_test = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.1" }
 
 [profile.dev.tool.dojo.env]
 rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
