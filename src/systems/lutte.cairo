@@ -1,10 +1,10 @@
 use starknet::{ContractAddress, get_caller_address, get_block_number, get_block_timestamp};
 use lutte::models::{
     player::Player, player::Enemy, player::UEnemy, player::EnemiesList, player::PlayableCharacter,
-    player::PlayableCharacterList
+    player::PlayableCharacterList,
 };
 use starknet::storage::{
-    StoragePointerReadAccess, StoragePointerWriteAccess, Vec, VecTrait, MutableVecTrait
+    StoragePointerReadAccess, StoragePointerWriteAccess, Vec, VecTrait, MutableVecTrait,
 };
 
 use lutte::random::dice::{Dice, DiceTrait};
@@ -12,12 +12,14 @@ use lutte::random::dice::{Dice, DiceTrait};
 
 #[starknet::interface]
 trait IBattleActions<T> {
-    fn offensive_phase(ref self: T) -> (felt252, u32, u32);
+    fn offensive_phase(
+        ref self: T, color: u8,
+    ); // color red - 0, green - 1, blue - 2, ...anything else throws an error
     fn fetch_playable_characters(self: @T) -> Array<PlayableCharacter>;
     fn fetch_enemies(self: @T) -> Array<UEnemy>;
     fn defensive_phase(ref self: T);
     fn get_user(self: @T, player: ContractAddress) -> Player;
-    fn create_first_enemy(ref self: T, skin: ByteArray, health: u32, attack_power: u8,);
+    fn create_first_enemy(ref self: T, skin: ByteArray, health: u32, attack_power: u8);
     fn create_first_character(ref self: T, skin: ByteArray, health: u32, attack_power: u8);
     fn create_character(ref self: T, skin: ByteArray, health: u32, attack_power: u8, level: u8);
     fn create_enemy(ref self: T, skin: ByteArray, health: u32, attack_power: u8, level: u8);
@@ -27,41 +29,33 @@ trait IBattleActions<T> {
 // ) -> felt252;
 }
 
-const attack_probabilities_blue: [
-    (u32, felt252)
-    ; 4] = [
+const attack_probabilities_blue: [(u32, felt252); 4] = [
     (50, 1), // 50% chance for a successful attack
     (20, 2), // 20% chance for a glazed attack
     (15, 3), // 15% chance for a miss
-    (15, 4), // 15% chance for a critical hit
+    (15, 4) // 15% chance for a critical hit
 ];
 
 // Probabilities when enemy picks green
-const attack_probabilities_green: [
-    (u32, felt252)
-    ; 4] = [
+const attack_probabilities_green: [(u32, felt252); 4] = [
     (50, 3), // 50% chance for a miss
     (20, 2), // 20% chance for a glazed attack
     (15, 1), // 15% chance for a hit
-    (15, 4), // 15% chance for a critical hit
+    (15, 4) // 15% chance for a critical hit
 ];
 
-const attack_probabilities_red: [
-    (u32, felt252)
-    ; 4] = [
+const attack_probabilities_red: [(u32, felt252); 4] = [
     (25, 3), // 50% chance for a miss
     (25, 2), // 20% chance for a glazed attack
     (25, 1), // 15% chance for a hit
-    (25, 4), // 15% chance for a critical hit
+    (25, 4) // 15% chance for a critical hit
 ];
 
 // Probabilities for defense phase when player chooses red and enemy picks blue
-const defense_probabilities_red_blue: [
-    (u32, felt252)
-    ; 3] = [
+const defense_probabilities_red_blue: [(u32, felt252); 3] = [
     (50, 1), // 50% chance for a block
     (30, 2), // 30% chance for a glazed hit
-    (20, 3), // 20% chance for a complete hit
+    (20, 3) // 20% chance for a complete hit
 ];
 
 
@@ -78,12 +72,10 @@ const defense_probabilities_red_blue: [
 // defense_probabilities_red_green.append!((30, 2));
 // defense_probabilities_red_green.append!((50, 3));
 
-const defense_probabilities_red_red: [
-    (u32, felt252)
-    ; 3] = [
+const defense_probabilities_red_red: [(u32, felt252); 3] = [
     (33, 1), // 50% chance for a block
     (33, 2), // 30% chance for a glazed hit
-    (33, 3), // 20% chance for a complete hit
+    (33, 3) // 20% chance for a complete hit
 ];
 
 #[dojo::contract]
@@ -117,7 +109,7 @@ mod actions {
         let user: felt252 = walletAddress.try_into().unwrap();
         let new_value = user + timestamp.try_into().unwrap();
         let mut dice = DiceTrait::new(
-            99, new_value.try_into().unwrap()
+            99, new_value.try_into().unwrap(),
         ); // imitating javascript's Math.random() * 100
 
         let result = dice.roll();
@@ -182,7 +174,7 @@ mod actions {
             let mut uid = 0_u8;
             // assert(self.is_owner(), 'unauthorised');
             let new_character = PlayableCharacter {
-                uid, health, attack_power, level: 0_u8, special_attack: true, skin
+                uid, health, attack_power, level: 0_u8, special_attack: true, skin,
             };
 
             let first_character = PlayableCharacterList { id: uid, players: array![new_character] };
@@ -190,7 +182,7 @@ mod actions {
         }
 
         fn create_character(
-            ref self: ContractState, skin: ByteArray, health: u32, attack_power: u8, level: u8
+            ref self: ContractState, skin: ByteArray, health: u32, attack_power: u8, level: u8,
         ) {
             let mut world = self.world_default();
 
@@ -205,8 +197,8 @@ mod actions {
                         health,
                         attack_power,
                         level,
-                        special_attack: true
-                    }
+                        special_attack: true,
+                    },
                 );
 
             world_characters = PlayableCharacterList { id: 0, players: current_characters };
@@ -214,7 +206,7 @@ mod actions {
             world.write_model(@world_characters);
         }
         fn create_enemy(
-            ref self: ContractState, skin: ByteArray, health: u32, attack_power: u8, level: u8
+            ref self: ContractState, skin: ByteArray, health: u32, attack_power: u8, level: u8,
         ) {
             let mut world = self.world_default();
 
@@ -228,8 +220,8 @@ mod actions {
                         health,
                         attack_power,
                         level,
-                        special_attack: true
-                    }
+                        special_attack: true,
+                    },
                 );
 
             world_enemies = EnemiesList { id: 0, enemies: current_enemies };
@@ -238,10 +230,12 @@ mod actions {
         }
 
         //     // Offensive phase where player attacks
-        fn offensive_phase(ref self: ContractState) -> (felt252, u32, u32) {
+        fn offensive_phase(ref self: ContractState, color: u8) {
             let mut world = self.world_default();
             let user_address = get_caller_address();
             let mut player_data: Player = world.read_model(user_address);
+
+            assert(color >= 0 && color <= 2, 'Invalid color');
 
             let mut attack_probabilities_blue = ArrayTrait::new();
             attack_probabilities_blue.append((50, 1)); // 50% chance for a successful attack
@@ -263,37 +257,12 @@ mod actions {
 
             let mut probabilities: Array<(u32, felt252)> = ArrayTrait::new();
 
-            let mut enemy_color: Array<felt252> = ArrayTrait::new();
-            enemy_color.append('red');
-            enemy_color.append('green');
-            enemy_color.append('blue');
-
-            // block of code to add randomness to dice seed
-            let timestamp = get_block_timestamp();
-            let user: felt252 = user_address.try_into().unwrap();
-            let new_value = user + timestamp.try_into().unwrap();
-
-            let mut dice = DiceTrait::new(
-                3, new_value
-            ); // imitating javascript's Math.random() * 100 for 3 range
-
-            let mut result = dice.roll();
-            result = result - 1;
-            if result < 0 {
-                result = 0
-            }
-            if result > 2 {
-                result = 2
-            }
-
-            let random_index: u32 = result.try_into().unwrap();
-
-            if enemy_color[random_index] == enemy_color[1] {
-                probabilities = attack_probabilities_green;
-            } else if enemy_color[random_index] == enemy_color[0] {
+            if color == 0 {
                 probabilities = attack_probabilities_red;
-            } else {
+            } else if color == 1 {
                 probabilities = attack_probabilities_green;
+            } else if color == 2 {
+                probabilities = attack_probabilities_blue;
             }
 
             let (outcome, random): (felt252, u32) = self.get_outcome(probabilities, user_address);
@@ -325,7 +294,6 @@ mod actions {
             }
             // Update world state after attack
             world.write_model(@player_data);
-            (outcome, random, random_index)
         }
 
         fn get_user(self: @ContractState, player: ContractAddress) -> Player {
@@ -339,17 +307,89 @@ mod actions {
             let user_address = get_caller_address();
             let mut player_data: Player = world.read_model(user_address);
 
-            let mut defense_probabilities_red_green =
-                ArrayTrait::new(); // Initialize an empty array
+            let mut defense_probabilities_red_blue = ArrayTrait::new();
+
+            defense_probabilities_red_blue.append((50, 1)); // 50% chance for a block
+            defense_probabilities_red_blue.append((30, 2)); // 30% chance for a glazed hit
+            defense_probabilities_red_blue.append((20, 3)); // 20% chance for a complete hit
+
+            let mut defense_probabilities_red_green = ArrayTrait::new();
 
             defense_probabilities_red_green.append((20, 1));
             defense_probabilities_red_green.append((30, 2));
             defense_probabilities_red_green.append((50, 3));
 
-            // Simulate defense and reduce player's health if necessary
-            player_data.health -= 10; // example damage
-            // Update world state after defense
-        // set!(world, (player_data));
+            let mut defense_probabilities_red_red = ArrayTrait::new();
+
+            defense_probabilities_red_red.append((33, 1)); // 50% chance for a block
+            defense_probabilities_red_red.append((33, 2)); // 30% chance for a glazed hit
+            defense_probabilities_red_red.append((33, 3)); // 20% chance for a complete hit
+
+            let mut probabilities: Array<(u32, felt252)> = ArrayTrait::new();
+
+            let mut enemy_color: Array<felt252> = ArrayTrait::new();
+            enemy_color.append('red');
+            enemy_color.append('green');
+            enemy_color.append('blue');
+
+            // block of code to add randomness to dice seed
+            let timestamp = get_block_timestamp();
+            let user: felt252 = user_address.try_into().unwrap();
+            let new_value = user + timestamp.try_into().unwrap();
+
+            let mut dice = DiceTrait::new(
+                3, new_value,
+            ); // imitating javascript's Math.random() * 100 for 3 range
+
+            let mut result = dice.roll();
+            result = result - 1;
+            if result < 0 {
+                result = 0
+            }
+            if result > 2 {
+                result = 2
+            }
+
+            let random_index: u32 = result.try_into().unwrap();
+
+            if enemy_color[random_index] == enemy_color[1] {
+                probabilities = defense_probabilities_red_green;
+            } else if enemy_color[random_index] == enemy_color[0] {
+                probabilities = defense_probabilities_red_red;
+            } else {
+                probabilities = defense_probabilities_red_blue;
+            }
+
+            let (outcome, random): (felt252, u32) = self.get_outcome(probabilities, user_address);
+
+            // Simulate an attack, adjust demeanor, and apply damage
+            let mut user_enemy: UEnemy = player_data.current_enemy;
+
+            // Apply changes based on the outcome
+            if outcome == 1 {
+                // Successful Attack
+                player_data.demeanor += 3;
+                user_enemy.health -= 20; // Standard damage
+            } else if outcome == 2 {
+                // Glazed Attack
+                player_data.demeanor += 1; // Minor boost
+                user_enemy.health -= 5; // Small amount of damage
+            } else if outcome == 3 { // Missed Attack
+            // No demeanor change or health deduction
+            } else if outcome == 4 {
+                // Critical Attack
+                player_data.demeanor += 5; // Higher boost
+                user_enemy.health -= 30; // Higher damage (10+ extra HP)
+            } else { // Default case, should not occur
+            }
+
+            // Ensure demeanor does not exceed maximum
+            if player_data.demeanor > 20 {
+                player_data.demeanor = 20;
+            }
+            // Update world state after attack
+            world.write_model(@player_data);
+            // (outcome, random, random_index)
         }
     }
 
@@ -369,15 +409,15 @@ mod actions {
                         skin: 1,
                         current_enemy: UEnemy {
                             uid: 0, health: 0, special_attack: true, level: 0, attack_power: 8,
-                        }
-                    }
+                        },
+                    },
                 );
         }
 
         fn get_outcome(
             self: @ContractState,
             probability_weights: Array<(u32, felt252)>,
-            walletAddress: ContractAddress
+            walletAddress: ContractAddress,
         ) -> (felt252, u32) {
             let random_number: u32 = get_random_value(walletAddress)
                 .try_into()
@@ -388,9 +428,7 @@ mod actions {
             let mut cumulative = 0_u32;
             let mut outcome: felt252 = 0;
 
-            for (
-                weight, result
-            ) in probability_weights {
+            for (weight, result) in probability_weights {
                 cumulative = cumulative + weight;
                 if random_number < cumulative {
                     outcome = result;
