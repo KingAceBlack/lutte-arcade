@@ -4,14 +4,14 @@ import * as models from "./models.gen";
 
 export async function setupWorld(provider: DojoProvider) {
 
-	const actions_offensivePhase = async (snAccount: Account) => {
+	const actions_offensivePhase = async (snAccount: Account, color: number) => {
 		try {
 			return await provider.execute(
 				snAccount,
 				{
 					contractName: "actions",
 					entrypoint: "offensive_phase",
-					calldata: [],
+					calldata: [color],
 				},
 				"lutte",
 			);

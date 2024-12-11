@@ -1244,7 +1244,7 @@
   "contracts": [
     {
       "address": "0xdfc0b05213539e2b70756b30d423bdb5689c9ea956f782eae55cfbe7f9934f",
-      "class_hash": "0x5ee0f490d71757e0e34b91842d6f97b494a57184c9d1d4c09b838264a682c26",
+      "class_hash": "0x2dcd0a1bfb0bbaf731d3c360f23e3d0b396717a0c74adaa302e17cba57ac196",
       "abi": [
         {
           "type": "impl",
@@ -1412,12 +1412,13 @@
             {
               "type": "function",
               "name": "offensive_phase",
-              "inputs": [],
-              "outputs": [
+              "inputs": [
                 {
-                  "type": "(core::felt252, core::integer::u32, core::integer::u32)"
+                  "name": "color",
+                  "type": "core::integer::u8"
                 }
               ],
+              "outputs": [],
               "state_mutability": "external"
             },
             {

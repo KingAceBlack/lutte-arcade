@@ -23,6 +23,15 @@ export interface EnemiesListValue {
 	enemies: Array<UEnemy>;
 }
 
+// Type definition for `lutte::models::player::EnemyValue` struct
+export interface EnemyValue {
+	fieldOrder: string[];
+	health: number;
+	attack_power: number;
+	special_attack: boolean;
+	level: number;
+}
+
 // Type definition for `lutte::models::player::Enemy` struct
 export interface Enemy {
 	fieldOrder: string[];
@@ -33,9 +42,11 @@ export interface Enemy {
 	level: number;
 }
 
-// Type definition for `lutte::models::player::EnemyValue` struct
-export interface EnemyValue {
+// Type definition for `lutte::models::player::PlayableCharacter` struct
+export interface PlayableCharacter {
 	fieldOrder: string[];
+	uid: number;
+	skin: string;
 	health: number;
 	attack_power: number;
 	special_attack: boolean;
@@ -55,11 +66,10 @@ export interface PlayableCharacterListValue {
 	players: Array<PlayableCharacter>;
 }
 
-// Type definition for `lutte::models::player::PlayableCharacter` struct
-export interface PlayableCharacter {
+// Type definition for `lutte::models::player::UEnemy` struct
+export interface UEnemy {
 	fieldOrder: string[];
 	uid: number;
-	skin: string;
 	health: number;
 	attack_power: number;
 	special_attack: boolean;
@@ -89,21 +99,11 @@ export interface PlayerValue {
 	skin: number;
 }
 
-// Type definition for `lutte::models::player::UEnemy` struct
-export interface UEnemy {
+// Type definition for `lutte::models::player::Session` struct
+export interface Session {
 	fieldOrder: string[];
-	uid: number;
-	health: number;
-	attack_power: number;
-	special_attack: boolean;
-	level: number;
-}
-
-// Type definition for `lutte::models::player::SessionDetail` struct
-export interface SessionDetail {
-	fieldOrder: string[];
-	id: number;
-	player: string;
+	id: string;
+	player: Array<SessionDetail>;
 }
 
 // Type definition for `lutte::models::player::SessionValue` struct
@@ -112,11 +112,11 @@ export interface SessionValue {
 	player: Array<SessionDetail>;
 }
 
-// Type definition for `lutte::models::player::Session` struct
-export interface Session {
+// Type definition for `lutte::models::player::SessionDetail` struct
+export interface SessionDetail {
 	fieldOrder: string[];
-	id: string;
-	player: Array<SessionDetail>;
+	id: number;
+	player: string;
 }
 
 // Type definition for `lutte::models::player::SessionDetailValue` struct
@@ -137,16 +137,16 @@ export interface LutteSchemaType extends SchemaType {
 		EnemiesList: EnemiesList,
 		UEnemy: UEnemy,
 		EnemiesListValue: EnemiesListValue,
-		Enemy: Enemy,
 		EnemyValue: EnemyValue,
+		Enemy: Enemy,
+		PlayableCharacter: PlayableCharacter,
 		PlayableCharacterList: PlayableCharacterList,
 		PlayableCharacterListValue: PlayableCharacterListValue,
-		PlayableCharacter: PlayableCharacter,
 		Player: Player,
 		PlayerValue: PlayerValue,
-		SessionDetail: SessionDetail,
-		SessionValue: SessionValue,
 		Session: Session,
+		SessionValue: SessionValue,
+		SessionDetail: SessionDetail,
 		SessionDetailValue: SessionDetailValue,
 		ERC__Balance: ERC__Balance,
 		ERC__Token: ERC__Token,
@@ -172,6 +172,13 @@ export const schema: LutteSchemaType = {
 			fieldOrder: ['enemies'],
 			enemies: [{ fieldOrder: ['uid', 'health', 'attack_power', 'special_attack', 'level'], uid: 0, health: 0, attack_power: 0, special_attack: false, level: 0, }],
 		},
+		EnemyValue: {
+			fieldOrder: ['health', 'attack_power', 'special_attack', 'level'],
+			health: 0,
+			attack_power: 0,
+			special_attack: false,
+			level: 0,
+		},
 		Enemy: {
 			fieldOrder: ['uid', 'health', 'attack_power', 'special_attack', 'level'],
 			uid: 0,
@@ -180,8 +187,10 @@ export const schema: LutteSchemaType = {
 			special_attack: false,
 			level: 0,
 		},
-		EnemyValue: {
-			fieldOrder: ['health', 'attack_power', 'special_attack', 'level'],
+		PlayableCharacter: {
+			fieldOrder: ['uid', 'skin', 'health', 'attack_power', 'special_attack', 'level'],
+			uid: 0,
+			skin: "",
 			health: 0,
 			attack_power: 0,
 			special_attack: false,
@@ -195,15 +204,6 @@ export const schema: LutteSchemaType = {
 		PlayableCharacterListValue: {
 			fieldOrder: ['players'],
 			players: [{ fieldOrder: ['uid', 'skin', 'health', 'attack_power', 'special_attack', 'level'], uid: 0, skin: "", health: 0, attack_power: 0, special_attack: false, level: 0, }],
-		},
-		PlayableCharacter: {
-			fieldOrder: ['uid', 'skin', 'health', 'attack_power', 'special_attack', 'level'],
-			uid: 0,
-			skin: "",
-			health: 0,
-			attack_power: 0,
-			special_attack: false,
-			level: 0,
 		},
 		Player: {
 			fieldOrder: ['address', 'health', 'demeanor', 'attack_power', 'special_attack', 'current_enemy', 'skin'],
@@ -224,19 +224,19 @@ export const schema: LutteSchemaType = {
 			current_enemy: { fieldOrder: ['uid', 'health', 'attack_power', 'special_attack', 'level'], uid: 0, health: 0, attack_power: 0, special_attack: false, level: 0, },
 			skin: 0,
 		},
-		SessionDetail: {
+		Session: {
 			fieldOrder: ['id', 'player'],
-			id: 0,
-			player: "",
+			id: "",
+			player: [{ fieldOrder: ['id', 'player'], id: 0, player: "", }],
 		},
 		SessionValue: {
 			fieldOrder: ['player'],
 			player: [{ fieldOrder: ['id', 'player'], id: 0, player: "", }],
 		},
-		Session: {
+		SessionDetail: {
 			fieldOrder: ['id', 'player'],
-			id: "",
-			player: [{ fieldOrder: ['id', 'player'], id: 0, player: "", }],
+			id: 0,
+			player: "",
 		},
 		SessionDetailValue: {
 			fieldOrder: ['player'],

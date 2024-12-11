@@ -270,6 +270,8 @@ mod actions {
             // Simulate an attack, adjust demeanor, and apply damage
             let mut user_enemy: UEnemy = player_data.current_enemy;
 
+            // TODO fix underflow in health and enemy health... set to zero
+
             // Apply changes based on the outcome
             if outcome == 1 {
                 // Successful Attack
@@ -402,13 +404,13 @@ mod actions {
                 .write_model(
                     @Player {
                         address: player,
-                        health: 34,
-                        special_attack: true,
-                        attack_power: 35,
-                        demeanor: 12,
+                        health: 200,
+                        special_attack: false,
+                        attack_power: 50,
+                        demeanor: 10,
                         skin: 1,
                         current_enemy: UEnemy {
-                            uid: 0, health: 0, special_attack: true, level: 0, attack_power: 8,
+                            uid: 0, health: 200, special_attack: true, level: 0, attack_power: 8,
                         },
                     },
                 );
