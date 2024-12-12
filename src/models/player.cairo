@@ -10,8 +10,9 @@ pub struct Player {
     pub demeanor: u8,
     pub attack_power: u8,
     pub special_attack: bool,
-    current_enemy: UEnemy,
-    skin: u8
+    pub current_enemy: UEnemy,
+    pub skin: u8,
+    pub last_attack: bool,
 }
 
 // skin can be 1, 2, 3
@@ -68,7 +69,7 @@ pub struct UEnemy {
 struct SessionDetail {
     #[key]
     id: u32,
-    player: ContractAddress
+    player: ContractAddress,
 }
 
 #[derive(Copy, Drop, Serde)]
@@ -76,6 +77,6 @@ struct SessionDetail {
 pub struct Session {
     #[key]
     pub id: ContractAddress,
-    pub player: Span<SessionDetail>
+    pub player: Span<SessionDetail>,
 }
 

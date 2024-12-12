@@ -24,59 +24,14 @@ trait IBattleActions<T> {
     fn create_character(ref self: T, skin: ByteArray, health: u32, attack_power: u8, level: u8);
     fn create_enemy(ref self: T, skin: ByteArray, health: u32, attack_power: u8, level: u8);
     fn spawn(ref self: T);
-    // fn get_outcome(
-//     ref self: T, probability_weights: Array<(u32, felt252)>, walletAddress: ContractAddress
-// ) -> felt252;
+    fn special_attack(ref self: T);
 }
 
-const attack_probabilities_blue: [(u32, felt252); 4] = [
-    (50, 1), // 50% chance for a successful attack
-    (20, 2), // 20% chance for a glazed attack
-    (15, 3), // 15% chance for a miss
-    (15, 4) // 15% chance for a critical hit
-];
 
-// Probabilities when enemy picks green
-const attack_probabilities_green: [(u32, felt252); 4] = [
-    (50, 3), // 50% chance for a miss
-    (20, 2), // 20% chance for a glazed attack
-    (15, 1), // 15% chance for a hit
-    (15, 4) // 15% chance for a critical hit
-];
-
-const attack_probabilities_red: [(u32, felt252); 4] = [
-    (25, 3), // 50% chance for a miss
-    (25, 2), // 20% chance for a glazed attack
-    (25, 1), // 15% chance for a hit
-    (25, 4) // 15% chance for a critical hit
-];
-
-// Probabilities for defense phase when player chooses red and enemy picks blue
-const defense_probabilities_red_blue: [(u32, felt252); 3] = [
-    (50, 1), // 50% chance for a block
-    (30, 2), // 30% chance for a glazed hit
-    (20, 3) // 20% chance for a complete hit
-];
-
-
-// let mut probabilities = Array::new();  // Initialize an empty array
-
-//     probabilities.append(20_u32);  // 20% chance for the first outcome
-//     probabilities.append(30_u32);  // 30% chance for the second outcome
-//     probabilities.append(50_u32);  // 50% chance for the third outcome
-
-// const defense_probabilities_red_green: Array<u32> = [20, 30, 50];
-
-// :new!();
-// defense_probabilities_red_green.append!((20, 1));
-// defense_probabilities_red_green.append!((30, 2));
-// defense_probabilities_red_green.append!((50, 3));
-
-const defense_probabilities_red_red: [(u32, felt252); 3] = [
-    (33, 1), // 50% chance for a block
-    (33, 2), // 30% chance for a glazed hit
-    (33, 3) // 20% chance for a complete hit
-];
+// demeanor values
+const depressed: u8 = 0; // 0-5 
+const neutral: u8 = 6; // 6-15
+const motivated: u8 = 16; // 16-20
 
 #[dojo::contract]
 mod actions {
@@ -89,6 +44,7 @@ mod actions {
     use super::{Player, Enemy, UEnemy, EnemiesList, PlayableCharacter, PlayableCharacterList};
     use super::{get_block_number, get_block_timestamp, Dice, DiceTrait};
     use super::{Vec, VecTrait};
+    use super::{depressed, neutral, motivated};
 
 
     // #[storage]
@@ -236,6 +192,7 @@ mod actions {
             let mut player_data: Player = world.read_model(user_address);
 
             assert(color >= 0 && color <= 2, 'Invalid color');
+            assert(!player_data.last_attack, 'out of turn');
 
             let mut attack_probabilities_blue = ArrayTrait::new();
             attack_probabilities_blue.append((50, 1)); // 50% chance for a successful attack
@@ -290,6 +247,12 @@ mod actions {
             } else { // Default case, should not occur
             }
 
+            // Ensure enemy health does not underflow
+
+            if user_enemy.health < 0 {
+                user_enemy.health = 0;
+            }
+
             // Ensure demeanor does not exceed maximum
             if player_data.demeanor > 20 {
                 player_data.demeanor = 20;
@@ -303,6 +266,21 @@ mod actions {
             let existing_player: Player = world.read_model(player);
             existing_player
         }
+
+
+        fn special_attack(ref self: ContractState) {
+            let mut world = self.world_default();
+            let user_address = get_caller_address();
+
+            let player_data: Player = world.read_model(user_address);
+            assert(player_data.demeanor >= 0, 'underflow');
+            assert(
+                player_data.demeanor < neutral || player_data.demeanor >= motivated,
+                'unmet conditions',
+            );
+        }
+
+
         //     // Defensive phase where player defends against an enemy attack
         fn defensive_phase(ref self: ContractState) {
             let mut world = self.world_default();
@@ -323,9 +301,9 @@ mod actions {
 
             let mut defense_probabilities_red_red = ArrayTrait::new();
 
-            defense_probabilities_red_red.append((33, 1)); // 50% chance for a block
-            defense_probabilities_red_red.append((33, 2)); // 30% chance for a glazed hit
-            defense_probabilities_red_red.append((33, 3)); // 20% chance for a complete hit
+            defense_probabilities_red_red.append((33, 1)); // 33% chance for a block
+            defense_probabilities_red_red.append((33, 2)); // 33% chance for a glazed hit
+            defense_probabilities_red_red.append((33, 3)); // 33% chance for a complete hit
 
             let mut probabilities: Array<(u32, felt252)> = ArrayTrait::new();
 
@@ -370,28 +348,24 @@ mod actions {
             // Apply changes based on the outcome
             if outcome == 1 {
                 // Successful Attack
-                player_data.demeanor += 3;
-                user_enemy.health -= 20; // Standard damage
+                player_data.health -= 20; // Standard damage
             } else if outcome == 2 {
                 // Glazed Attack
-                player_data.demeanor += 1; // Minor boost
-                user_enemy.health -= 5; // Small amount of damage
-            } else if outcome == 3 { // Missed Attack
-            // No demeanor change or health deduction
-            } else if outcome == 4 {
+                player_data.health -= 20;
+            } else if outcome == 3 {
                 // Critical Attack
-                player_data.demeanor += 5; // Higher boost
-                user_enemy.health -= 30; // Higher damage (10+ extra HP)
+                player_data.health -= 20;
             } else { // Default case, should not occur
             }
 
             // Ensure demeanor does not exceed maximum
-            if player_data.demeanor > 20 {
-                player_data.demeanor = 20;
+            if player_data.health < 0 {
+                player_data.health = 0;
             }
+            // allow user to attack
+            player_data.last_attack = false;
             // Update world state after attack
             world.write_model(@player_data);
-            // (outcome, random, random_index)
         }
     }
 
@@ -409,6 +383,7 @@ mod actions {
                         attack_power: 50,
                         demeanor: 10,
                         skin: 1,
+                        last_attack: false,
                         current_enemy: UEnemy {
                             uid: 0, health: 200, special_attack: true, level: 0, attack_power: 8,
                         },
