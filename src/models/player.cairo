@@ -52,6 +52,7 @@ pub struct PlayableCharacter {
     pub attack_power: u8,
     pub special_attack: bool,
     pub level: u8,
+    pub max_health: u32,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]

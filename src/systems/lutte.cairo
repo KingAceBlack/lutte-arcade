@@ -8,7 +8,7 @@ use starknet::storage::{
 };
 
 use lutte::random::dice::{Dice, DiceTrait};
-// use core::{ArrayTrait, Array};
+use dojo::event::EventStorage;
 
 #[starknet::interface]
 trait IBattleActions<T> {
@@ -45,18 +45,24 @@ mod actions {
     use super::{get_block_number, get_block_timestamp, Dice, DiceTrait};
     use super::{Vec, VecTrait};
     use super::{depressed, neutral, motivated};
+    use super::EventStorage;
 
 
-    // #[storage]
-    // struct Storage {
-    //     owner: ContractAddress,
-    //     enemies: Array<Enemy>
-    // }
+    #[derive(Serde, Copy, Drop, Introspect, PartialEq, Debug)]
+    pub enum GameEvent {
+        Died,
+        Won,
+    }
 
-    // either manage enemies in a struct or as a storage
 
-    // #[constructor]
-    // fn constructor() {}
+    #[derive(Copy, Drop, Serde)]
+    #[dojo::event]
+    pub struct MyEvent {
+        #[key]
+        id: ContractAddress,
+        value: u32,
+    }
+
 
     pub fn get_random_value(walletAddress: ContractAddress) -> u8 {
         let _block_number = get_block_number();
@@ -130,7 +136,13 @@ mod actions {
             let mut uid = 0_u8;
             // assert(self.is_owner(), 'unauthorised');
             let new_character = PlayableCharacter {
-                uid, health, attack_power, level: 0_u8, special_attack: true, skin,
+                uid,
+                health,
+                attack_power,
+                level: 0_u8,
+                special_attack: true,
+                skin,
+                max_health: health,
             };
 
             let first_character = PlayableCharacterList { id: uid, players: array![new_character] };
@@ -154,6 +166,7 @@ mod actions {
                         attack_power,
                         level,
                         special_attack: true,
+                        max_health: health,
                     },
                 );
 
@@ -222,7 +235,7 @@ mod actions {
                 probabilities = attack_probabilities_blue;
             }
 
-            let (outcome, random): (felt252, u32) = self.get_outcome(probabilities, user_address);
+            let (outcome, _random): (felt252, u32) = self.get_outcome(probabilities, user_address);
 
             // Simulate an attack, adjust demeanor, and apply damage
             let mut user_enemy: UEnemy = player_data.current_enemy;
@@ -248,10 +261,18 @@ mod actions {
             }
 
             // Ensure enemy health does not underflow
-
             if user_enemy.health < 0 {
                 user_enemy.health = 0;
             }
+
+            if player_data.health <= 0 {
+                player_data.health = 0;
+            }
+
+            // ensure user health doesnt exceed max healh
+            // if player_data.health >= player_data.max_health {
+            //     player_data.healh = player_data.max_health
+            // }
 
             // Ensure demeanor does not exceed maximum
             if player_data.demeanor > 20 {
@@ -340,21 +361,24 @@ mod actions {
                 probabilities = defense_probabilities_red_blue;
             }
 
-            let (outcome, random): (felt252, u32) = self.get_outcome(probabilities, user_address);
+            let (outcome, _get_userrandom): (felt252, u32) = self
+                .get_outcome(probabilities, user_address);
 
             // Simulate an attack, adjust demeanor, and apply damage
-            let mut user_enemy: UEnemy = player_data.current_enemy;
+            let mut _user_enemy: UEnemy = player_data.current_enemy;
 
             // Apply changes based on the outcome
             if outcome == 1 {
                 // Successful Attack
                 player_data.health -= 20; // Standard damage
+                player_data.demeanor -= 2;
             } else if outcome == 2 {
                 // Glazed Attack
-                player_data.health -= 20;
+                player_data.health -= 10;
             } else if outcome == 3 {
                 // Critical Attack
-                player_data.health -= 20;
+                player_data.health -= 30;
+                player_data.demeanor -= 2;
             } else { // Default case, should not occur
             }
 
