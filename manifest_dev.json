@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x79d9ce84b97bcc2a631996c3100d57966fc2f5b061fb1ec4dfd0040976bcac6",
-    "address": "0x14cad07ef5c507b8fc6f47faa5eea385fa712eef54901eedc49048a8c71a7f9",
-    "seed": "lutte-arcade",
+    "address": "0x6f08a7168b67d269b393a2f4eff772481ec260702397088d414f318621bbe8c",
+    "seed": "lutte-arcadee",
     "name": "lutte",
     "entrypoints": [
       "uuid",
@@ -1243,8 +1243,8 @@
   },
   "contracts": [
     {
-      "address": "0xdfc0b05213539e2b70756b30d423bdb5689c9ea956f782eae55cfbe7f9934f",
-      "class_hash": "0x2dcd0a1bfb0bbaf731d3c360f23e3d0b396717a0c74adaa302e17cba57ac196",
+      "address": "0x516b8bf3b92fc7d96054e5ae71fe6572cc1629528187eb045ea87780aa3c742",
+      "class_hash": "0x6872a39fd3ec2ae13b8e3bfc2522731e9b27c79c4797495f584c47bbfe8fe0",
       "abi": [
         {
           "type": "impl",
@@ -1342,6 +1342,10 @@
             {
               "name": "level",
               "type": "core::integer::u8"
+            },
+            {
+              "name": "max_health",
+              "type": "core::integer::u32"
             }
           ]
         },
@@ -1402,6 +1406,10 @@
             {
               "name": "skin",
               "type": "core::integer::u8"
+            },
+            {
+              "name": "last_attack",
+              "type": "core::bool"
             }
           ]
         },
@@ -1560,6 +1568,13 @@
               "inputs": [],
               "outputs": [],
               "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "special_attack",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
             }
           ]
         },
@@ -1689,6 +1704,7 @@
         "create_character",
         "create_enemy",
         "spawn",
+        "special_attack",
         "upgrade"
       ]
     }
@@ -1708,13 +1724,13 @@
     },
     {
       "members": [],
-      "class_hash": "0x50e54dc38780a4ff5ebaa35e1390c217e6b4702a0a9599ed16444a9963a858c",
+      "class_hash": "0xe3e491f1b382f97c29bb60e6050b48d0b0f14b52eb46b5aa90d085af143cd6",
       "tag": "lutte-PlayableCharacterList",
       "selector": "0x6b018d4d35e74133968fc43665e34613efd5228fb9cfccfd97aefe9cf2599"
     },
     {
       "members": [],
-      "class_hash": "0x371e1f7dcc2a3ccc0cdac446aee110e2cd08dd243ac62686aba895fac5c3ee3",
+      "class_hash": "0xabcacf6aaea7ba3d520d26bc79f43c6758175dde2e477af4cf6ace1f43ddb7",
       "tag": "lutte-Player",
       "selector": "0x69d4345925d69b0ebbd11a22b726eedcdf6555dc38890062965eb0c36fc2bfd"
     },
@@ -1731,5 +1747,12 @@
       "selector": "0x3557a32f12a855df2658076cf346745c6948562846023b7706343a2e39e4442"
     }
   ],
-  "events": []
+  "events": [
+    {
+      "members": [],
+      "class_hash": "0x28f3a43ca05d35dcc1e7b124404c10345c6d255d517372be6147a962ecd21a7",
+      "tag": "lutte-GameEvent",
+      "selector": "0x559bb144d97b67c73245dedd8a6910fa5f55545494e389327e6a3353c5afeff"
+    }
+  ]
 }

@@ -48,19 +48,19 @@ mod actions {
     use super::EventStorage;
 
 
-    #[derive(Serde, Copy, Drop, Introspect, PartialEq, Debug)]
-    pub enum GameEvent {
-        Died,
-        Won,
-    }
-
+    // #[derive(Serde, Copy, Drop, Introspect, PartialEq, Debug)]
+    // pub enum EventEnum {
+    //     Died: bool,
+    //     Won: bool,
+    // }
 
     #[derive(Copy, Drop, Serde)]
     #[dojo::event]
-    pub struct MyEvent {
+    pub struct GameEvent {
         #[key]
         id: ContractAddress,
-        value: u32,
+        won: bool,
+        died: bool,
     }
 
 
@@ -263,10 +263,14 @@ mod actions {
             // Ensure enemy health does not underflow
             if user_enemy.health < 0 {
                 user_enemy.health = 0;
+                let e = GameEvent { id: user_address, won: true, died: false };
+                world.emit_event(@e);
             }
 
             if player_data.health <= 0 {
                 player_data.health = 0;
+                let e = GameEvent { id: user_address, won: false, died: true };
+                world.emit_event(@e);
             }
 
             // ensure user health doesnt exceed max healh
@@ -374,7 +378,7 @@ mod actions {
                 player_data.demeanor -= 2;
             } else if outcome == 2 {
                 // Glazed Attack
-                player_data.health -= 10;
+                player_data.health -= 5;
             } else if outcome == 3 {
                 // Critical Attack
                 player_data.health -= 30;
@@ -383,8 +387,10 @@ mod actions {
             }
 
             // Ensure demeanor does not exceed maximum
-            if player_data.health < 0 {
+            if player_data.health <= 0 {
                 player_data.health = 0;
+                let e = GameEvent { id: user_address, won: false, died: true };
+                world.emit_event(@e);
             }
             // allow user to attack
             player_data.last_attack = false;
