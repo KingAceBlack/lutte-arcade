@@ -1,7 +1,7 @@
 {
   "world": {
-    "class_hash": "0x79d9ce84b97bcc2a631996c3100d57966fc2f5b061fb1ec4dfd0040976bcac6",
-    "address": "0x6f08a7168b67d269b393a2f4eff772481ec260702397088d414f318621bbe8c",
+    "class_hash": "0x45575a88cc5cef1e444c77ce60b7b4c9e73a01cbbe20926d5a4c72a94011410",
+    "address": "0x4483499cfde0ff934d098cc18a2e576bb7bfd294509c5860f62bd57ecccd0cf",
     "seed": "lutte-arcadee",
     "name": "lutte",
     "entrypoints": [
@@ -92,6 +92,10 @@
           {
             "name": "metadata_uri",
             "type": "core::byte_array::ByteArray"
+          },
+          {
+            "name": "metadata_hash",
+            "type": "core::felt252"
           }
         ]
       },
@@ -1002,6 +1006,11 @@
             "name": "uri",
             "type": "core::byte_array::ByteArray",
             "kind": "data"
+          },
+          {
+            "name": "hash",
+            "type": "core::felt252",
+            "kind": "data"
           }
         ]
       },
@@ -1243,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x516b8bf3b92fc7d96054e5ae71fe6572cc1629528187eb045ea87780aa3c742",
-      "class_hash": "0x6872a39fd3ec2ae13b8e3bfc2522731e9b27c79c4797495f584c47bbfe8fe0",
+      "address": "0x41f9ea89aa02827b508b07fe8e4d8ed940fbd51a7d7d574eb840b079fb37d43",
+      "class_hash": "0x56dba09b4781ee0151f198110f0efb5dac29d3115fca9decf7a6039c78bcaf3",
       "abi": [
         {
           "type": "impl",
@@ -1565,7 +1574,12 @@
             {
               "type": "function",
               "name": "spawn",
-              "inputs": [],
+              "inputs": [
+                {
+                  "name": "skin",
+                  "type": "core::integer::u8"
+                }
+              ],
               "outputs": [],
               "state_mutability": "external"
             },

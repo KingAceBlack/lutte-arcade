@@ -23,7 +23,7 @@ trait IBattleActions<T> {
     fn create_first_character(ref self: T, skin: ByteArray, health: u32, attack_power: u8);
     fn create_character(ref self: T, skin: ByteArray, health: u32, attack_power: u8, level: u8);
     fn create_enemy(ref self: T, skin: ByteArray, health: u32, attack_power: u8, level: u8);
-    fn spawn(ref self: T);
+    fn spawn(ref self: T, skin: u8);
     fn special_attack(ref self: T);
 }
 
@@ -94,9 +94,9 @@ mod actions {
 
     #[abi(embed_v0)]
     impl BattleImpl of super::IBattleActions<ContractState> {
-        fn spawn(ref self: ContractState) {
+        fn spawn(ref self: ContractState, skin: u8) {
             let player = get_caller_address();
-            self.set_default_position(player);
+            self.set_default_position(player, skin);
         }
 
         fn fetch_enemies(self: @ContractState) -> Array<UEnemy> {
@@ -401,7 +401,7 @@ mod actions {
 
     #[generate_trait]
     impl InternalImpl of InternalUtils {
-        fn set_default_position(self: @ContractState, player: ContractAddress) {
+        fn set_default_position(self: @ContractState, player: ContractAddress, skin: u8) {
             let mut world = self.world_default();
 
             world
@@ -412,7 +412,7 @@ mod actions {
                         special_attack: false,
                         attack_power: 50,
                         demeanor: 10,
-                        skin: 1,
+                        skin,
                         last_attack: false,
                         current_enemy: UEnemy {
                             uid: 0, health: 200, special_attack: true, level: 0, attack_power: 8,

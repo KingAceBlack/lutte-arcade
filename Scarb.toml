@@ -12,7 +12,7 @@ migrate = "sozo build && sozo migrate --fee eth && sozo inspect"
 
 
 [dependencies]
-dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.1" }
+dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.5" }
 
 
 [tool.dojo]
@@ -23,7 +23,7 @@ build-external-contracts = ["dojo::world::world_contract::world"]
 
 
 [dev-dependencies]
-dojo_cairo_test = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.1" }
+dojo_cairo_test = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.5" }
 
 [profile.dev.tool.dojo.env]
 rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
