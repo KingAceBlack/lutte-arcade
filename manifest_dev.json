@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x45575a88cc5cef1e444c77ce60b7b4c9e73a01cbbe20926d5a4c72a94011410",
-    "address": "0x4483499cfde0ff934d098cc18a2e576bb7bfd294509c5860f62bd57ecccd0cf",
-    "seed": "lutte-arcadee",
+    "address": "0x7275fce1e724769cb46384fc190efdd849d3322b2d90216718bd3f3e51f32f1",
+    "seed": "lutte-arcade",
     "name": "lutte",
     "entrypoints": [
       "uuid",
@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x41f9ea89aa02827b508b07fe8e4d8ed940fbd51a7d7d574eb840b079fb37d43",
-      "class_hash": "0x56dba09b4781ee0151f198110f0efb5dac29d3115fca9decf7a6039c78bcaf3",
+      "address": "0x79621b3b5c759b9da9830df5e8ab4ce5a2557443710ac9ff2abef28fe808ae0",
+      "class_hash": "0x2087e8b4d8eb4c04e97e123c36e97209e9e70d29b3151d75b32f3a7f54e1f03",
       "abi": [
         {
           "type": "impl",
@@ -1381,6 +1381,10 @@
             {
               "name": "level",
               "type": "core::integer::u8"
+            },
+            {
+              "name": "skin",
+              "type": "core::byte_array::ByteArray"
             }
           ]
         },
@@ -1413,7 +1417,7 @@
               "type": "lutte::models::player::UEnemy"
             },
             {
-              "name": "skin",
+              "name": "skin_id",
               "type": "core::integer::u8"
             },
             {
@@ -1726,7 +1730,7 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x502808f672606798fc891bea22bc9c7f685a08bff5d01b43accd3a5df1bd14a",
+      "class_hash": "0x428aa20a7ef0333e26196c254ace986ba10d3907550a561cfc4f380eab543de",
       "tag": "lutte-EnemiesList",
       "selector": "0x2ccf077fa97585c3dd51d038fa1e6a8deaa77d9ad24c068462035dde4d16be9"
     },
@@ -1744,7 +1748,7 @@
     },
     {
       "members": [],
-      "class_hash": "0xabcacf6aaea7ba3d520d26bc79f43c6758175dde2e477af4cf6ace1f43ddb7",
+      "class_hash": "0x11e263db51aed3ae5c45d1a05a3576a5f35e2c08f39bd95c3aa4d148dc1ba5",
       "tag": "lutte-Player",
       "selector": "0x69d4345925d69b0ebbd11a22b726eedcdf6555dc38890062965eb0c36fc2bfd"
     },

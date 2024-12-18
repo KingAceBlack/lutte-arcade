@@ -10,6 +10,7 @@ use starknet::storage::{
 use lutte::random::dice::{Dice, DiceTrait};
 use dojo::event::EventStorage;
 
+
 #[starknet::interface]
 trait IBattleActions<T> {
     fn offensive_phase(
@@ -119,12 +120,15 @@ mod actions {
             ref self: ContractState, skin: ByteArray, health: u32, attack_power: u8,
         ) {
             let mut world = self.world_default();
-            // let caller = get_caller_address();
-            // let mut uid = world.uuid();
             let mut uid = 0;
-            assert(self.is_owner(), 'unauthorised');
+            let enemies: EnemiesList = world.read_model(0);
 
-            let new_enemy = UEnemy { uid, health, attack_power, level: 0_u8, special_attack: true };
+            assert(self.is_owner(), 'unauthorised');
+            assert(enemies.enemies.len() < 1, 'not first enemy');
+
+            let new_enemy = UEnemy {
+                uid, health, attack_power, level: 0_u8, special_attack: true, skin
+            };
             let first_enemy = EnemiesList { id: 0_u8, enemies: array![new_enemy] };
             world.write_model(@first_enemy);
         }
@@ -134,7 +138,11 @@ mod actions {
         ) {
             let mut world = self.world_default();
             let mut uid = 0_u8;
-            // assert(self.is_owner(), 'unauthorised');
+            let playable_characters: PlayableCharacterList = world.read_model(0);
+
+            assert(self.is_owner(), 'unauthorised');
+            assert(playable_characters.players.len() < 1, 'not first character');
+
             let new_character = PlayableCharacter {
                 uid,
                 health,
@@ -160,7 +168,7 @@ mod actions {
             current_characters
                 .append(
                     PlayableCharacter {
-                        uid: (current_characters.len() + 1).try_into().unwrap(),
+                        uid: (current_characters.len()).try_into().unwrap(),
                         skin,
                         health,
                         attack_power,
@@ -190,6 +198,7 @@ mod actions {
                         attack_power,
                         level,
                         special_attack: true,
+                        skin
                     },
                 );
 
@@ -203,6 +212,9 @@ mod actions {
             let mut world = self.world_default();
             let user_address = get_caller_address();
             let mut player_data: Player = world.read_model(user_address);
+
+            let playable_characters: PlayableCharacterList = world.read_model(0);
+            let storage_user_character = playable_characters.players.at(player_data.skin_id.into());
 
             assert(color >= 0 && color <= 2, 'Invalid color');
             assert(!player_data.last_attack, 'out of turn');
@@ -238,7 +250,7 @@ mod actions {
             let (outcome, _random): (felt252, u32) = self.get_outcome(probabilities, user_address);
 
             // Simulate an attack, adjust demeanor, and apply damage
-            let mut user_enemy: UEnemy = player_data.current_enemy;
+            let mut user_enemy: UEnemy = player_data.current_enemy.clone();
 
             // TODO fix underflow in health and enemy health... set to zero
 
@@ -267,16 +279,24 @@ mod actions {
                 world.emit_event(@e);
             }
 
+            // emits user died
+
             if player_data.health <= 0 {
                 player_data.health = 0;
                 let e = GameEvent { id: user_address, won: false, died: true };
                 world.emit_event(@e);
             }
 
+            if player_data.current_enemy.health <= 0 {
+                player_data.current_enemy.health = 0;
+                let e = GameEvent { id: user_address, won: true, died: false };
+                world.emit_event(@e);
+            }
+
             // ensure user health doesnt exceed max healh
-            // if player_data.health >= player_data.max_health {
-            //     player_data.healh = player_data.max_health
-            // }
+            if player_data.health >= *storage_user_character.max_health {
+                player_data.health = *storage_user_character.max_health
+            }
 
             // Ensure demeanor does not exceed maximum
             if player_data.demeanor > 20 {
@@ -401,22 +421,36 @@ mod actions {
 
     #[generate_trait]
     impl InternalImpl of InternalUtils {
-        fn set_default_position(self: @ContractState, player: ContractAddress, skin: u8) {
+        fn set_default_position(self: @ContractState, player: ContractAddress, skin_id: u8) {
             let mut world = self.world_default();
+            let playable_characters: PlayableCharacterList = world.read_model(0_u8);
+            let enemies: EnemiesList = world.read_model(0);
+            let index: u32 = skin_id.into();
+
+            match playable_characters.players.get(index) {
+                Option::Some(x) => { x.unbox() },
+                Option::None => { panic!("player doesnt exist") },
+            }
+
+            assert(playable_characters.players.len() > 0, 'empty players');
+            assert(enemies.enemies.len() > 0, 'empty enemies');
+
+            // assert(playable_characters.players.get(index), 'empty players');
+
+            let user_character = playable_characters.players.at(index);
+            let first_enemy = enemies.enemies.at(0).clone();
 
             world
                 .write_model(
                     @Player {
                         address: player,
-                        health: 200,
+                        health: *user_character.health,
                         special_attack: false,
-                        attack_power: 50,
+                        attack_power: *user_character.attack_power,
                         demeanor: 10,
-                        skin,
+                        skin_id,
                         last_attack: false,
-                        current_enemy: UEnemy {
-                            uid: 0, health: 200, special_attack: true, level: 0, attack_power: 8,
-                        },
+                        current_enemy: first_enemy,
                     },
                 );
         }
@@ -435,7 +469,9 @@ mod actions {
             let mut cumulative = 0_u32;
             let mut outcome: felt252 = 0;
 
-            for (weight, result) in probability_weights {
+            for (
+                weight, result
+            ) in probability_weights {
                 cumulative = cumulative + weight;
                 if random_number < cumulative {
                     outcome = result;
