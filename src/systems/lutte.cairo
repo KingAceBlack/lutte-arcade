@@ -127,7 +127,7 @@ mod actions {
             assert(enemies.enemies.len() < 1, 'not first enemy');
 
             let new_enemy = UEnemy {
-                uid, health, attack_power, level: 0_u8, special_attack: true, skin
+                uid, health, attack_power, level: 0_u8, special_attack: true, skin,
             };
             let first_enemy = EnemiesList { id: 0_u8, enemies: array![new_enemy] };
             world.write_model(@first_enemy);
@@ -198,7 +198,7 @@ mod actions {
                         attack_power,
                         level,
                         special_attack: true,
-                        skin
+                        skin,
                     },
                 );
 
@@ -469,9 +469,7 @@ mod actions {
             let mut cumulative = 0_u32;
             let mut outcome: felt252 = 0;
 
-            for (
-                weight, result
-            ) in probability_weights {
+            for (weight, result) in probability_weights {
                 cumulative = cumulative + weight;
                 if random_number < cumulative {
                     outcome = result;
