@@ -217,7 +217,7 @@ mod actions {
             let storage_user_character = playable_characters.players.at(player_data.skin_id.into());
 
             assert(color >= 0 && color <= 2, 'Invalid color');
-            assert(!player_data.last_attack, 'out of turn');
+            assert(player_data.last_attack == false, 'out of turn');
 
             let mut attack_probabilities_blue = ArrayTrait::new();
             attack_probabilities_blue.append((50, 1)); // 50% chance for a successful attack
@@ -302,6 +302,7 @@ mod actions {
             if player_data.demeanor > 20 {
                 player_data.demeanor = 20;
             }
+            player_data.last_attack = true;
             // Update world state after attack
             world.write_model(@player_data);
         }
@@ -394,15 +395,40 @@ mod actions {
             // Apply changes based on the outcome
             if outcome == 1 {
                 // Successful Attack
-                player_data.health -= 20; // Standard damage
-                player_data.demeanor -= 2;
+                // player_data.health -= 20; // Standard damage
+                player_data
+                    .health = self
+                    .safe_math_to_zero(player_data.health.try_into().unwrap(), 20)
+                    .try_into()
+                    .unwrap();
+                // player_data.demeanor -= 2;
+                player_data
+                    .demeanor = self
+                    .safe_math_to_zero(player_data.demeanor, 2)
+                    .try_into()
+                    .unwrap();
             } else if outcome == 2 {
                 // Glazed Attack
-                player_data.health -= 5;
+                // player_data.health -= 5;
+                player_data
+                    .health = self
+                    .safe_math_to_zero(player_data.health.try_into().unwrap(), 5)
+                    .try_into()
+                    .unwrap();
             } else if outcome == 3 {
                 // Critical Attack
-                player_data.health -= 30;
-                player_data.demeanor -= 2;
+                // player_data.health -= 30;
+                player_data
+                    .health = self
+                    .safe_math_to_zero(player_data.health.try_into().unwrap(), 30)
+                    .try_into()
+                    .unwrap();
+                // player_data.demeanor -= 2;
+                player_data
+                    .demeanor = self
+                    .safe_math_to_zero(player_data.demeanor, 2)
+                    .try_into()
+                    .unwrap();
             } else { // Default case, should not occur
             }
 
@@ -421,6 +447,15 @@ mod actions {
 
     #[generate_trait]
     impl InternalImpl of InternalUtils {
+        fn safe_math_to_zero(
+            self: @ContractState, mut variable_to_update: u8, value_to_subtract: u8,
+        ) -> u8 {
+            if variable_to_update <= value_to_subtract {
+                0
+            } else {
+                variable_to_update - value_to_subtract
+            }
+        }
         fn set_default_position(self: @ContractState, player: ContractAddress, skin_id: u8) {
             let mut world = self.world_default();
             let playable_characters: PlayableCharacterList = world.read_model(0_u8);
