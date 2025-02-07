@@ -20,10 +20,48 @@ trait IBattleActions<T> {
     fn fetch_enemies(self: @T) -> Array<UEnemy>;
     fn defensive_phase(ref self: T);
     fn get_user(self: @T, player: ContractAddress) -> Player;
-    fn create_first_enemy(ref self: T, skin: ByteArray, health: u32, attack_power: u8);
-    fn create_first_character(ref self: T, skin: ByteArray, health: u32, attack_power: u8);
-    fn create_character(ref self: T, skin: ByteArray, health: u32, attack_power: u8, level: u8);
-    fn create_enemy(ref self: T, skin: ByteArray, health: u32, attack_power: u8, level: u8);
+    fn create_first_enemy(
+        ref self: T,
+        skin: ByteArray,
+        health: u32,
+        attack_power: u8,
+        idle_sprite: ByteArray,
+        attack_sprite: ByteArray,
+        mugshot: ByteArray,
+        hit_sprite: ByteArray,
+    );
+    fn create_first_character(
+        ref self: T,
+        skin: ByteArray,
+        health: u32,
+        attack_power: u8,
+        idle_sprite: ByteArray,
+        attack_sprite: ByteArray,
+        mugshot: ByteArray,
+        hit_sprite: ByteArray,
+    );
+    fn create_character(
+        ref self: T,
+        skin: ByteArray,
+        health: u32,
+        attack_power: u8,
+        level: u8,
+        idle_sprite: ByteArray,
+        attack_sprite: ByteArray,
+        mugshot: ByteArray,
+        hit_sprite: ByteArray,
+    );
+    fn create_enemy(
+        ref self: T,
+        skin: ByteArray,
+        health: u32,
+        attack_power: u8,
+        level: u8,
+        idle_sprite: ByteArray,
+        attack_sprite: ByteArray,
+        mugshot: ByteArray,
+        hit_sprite: ByteArray,
+    );
     fn spawn(ref self: T, skin: u8);
     fn special_attack(ref self: T);
 }
@@ -117,7 +155,14 @@ mod actions {
         }
 
         fn create_first_enemy(
-            ref self: ContractState, skin: ByteArray, health: u32, attack_power: u8,
+            ref self: ContractState,
+            skin: ByteArray,
+            health: u32,
+            attack_power: u8,
+            idle_sprite: ByteArray,
+            attack_sprite: ByteArray,
+            mugshot: ByteArray,
+            hit_sprite: ByteArray,
         ) {
             let mut world = self.world_default();
             let mut uid = 0;
@@ -127,14 +172,31 @@ mod actions {
             assert(enemies.enemies.len() < 1, 'not first enemy');
 
             let new_enemy = UEnemy {
-                uid, health, attack_power, level: 0_u8, special_attack: true, skin,
+                uid,
+                health,
+                attack_power,
+                level: 0_u8,
+                special_attack: true,
+                skin,
+                max_health: health,
+                idle_sprite,
+                attack_sprite,
+                mugshot,
+                hit_sprite,
             };
             let first_enemy = EnemiesList { id: 0_u8, enemies: array![new_enemy] };
             world.write_model(@first_enemy);
         }
 
         fn create_first_character(
-            ref self: ContractState, skin: ByteArray, health: u32, attack_power: u8,
+            ref self: ContractState,
+            skin: ByteArray,
+            health: u32,
+            attack_power: u8,
+            idle_sprite: ByteArray,
+            attack_sprite: ByteArray,
+            mugshot: ByteArray,
+            hit_sprite: ByteArray,
         ) {
             let mut world = self.world_default();
             let mut uid = 0_u8;
@@ -151,6 +213,10 @@ mod actions {
                 special_attack: true,
                 skin,
                 max_health: health,
+                idle_sprite,
+                attack_sprite,
+                mugshot,
+                hit_sprite,
             };
 
             let first_character = PlayableCharacterList { id: uid, players: array![new_character] };
@@ -158,7 +224,15 @@ mod actions {
         }
 
         fn create_character(
-            ref self: ContractState, skin: ByteArray, health: u32, attack_power: u8, level: u8,
+            ref self: ContractState,
+            skin: ByteArray,
+            health: u32,
+            attack_power: u8,
+            level: u8,
+            idle_sprite: ByteArray,
+            attack_sprite: ByteArray,
+            mugshot: ByteArray,
+            hit_sprite: ByteArray,
         ) {
             let mut world = self.world_default();
 
@@ -175,6 +249,10 @@ mod actions {
                         level,
                         special_attack: true,
                         max_health: health,
+                        idle_sprite,
+                        attack_sprite,
+                        mugshot,
+                        hit_sprite,
                     },
                 );
 
@@ -183,7 +261,15 @@ mod actions {
             world.write_model(@world_characters);
         }
         fn create_enemy(
-            ref self: ContractState, skin: ByteArray, health: u32, attack_power: u8, level: u8,
+            ref self: ContractState,
+            skin: ByteArray,
+            health: u32,
+            attack_power: u8,
+            level: u8,
+            idle_sprite: ByteArray,
+            attack_sprite: ByteArray,
+            mugshot: ByteArray,
+            hit_sprite: ByteArray,
         ) {
             let mut world = self.world_default();
 
@@ -198,7 +284,12 @@ mod actions {
                         attack_power,
                         level,
                         special_attack: true,
+                        max_health: health,
                         skin,
+                        idle_sprite,
+                        attack_sprite,
+                        mugshot,
+                        hit_sprite,
                     },
                 );
 
@@ -302,6 +393,7 @@ mod actions {
             if player_data.demeanor > 20 {
                 player_data.demeanor = 20;
             }
+            player_data.current_enemy = user_enemy.clone();
             player_data.last_attack = true;
             // Update world state after attack
             world.write_model(@player_data);

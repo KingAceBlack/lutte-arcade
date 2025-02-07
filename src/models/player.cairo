@@ -53,17 +53,25 @@ pub struct PlayableCharacter {
     pub special_attack: bool,
     pub level: u8,
     pub max_health: u32,
-    // pub sprite: ByteArray,
+    pub idle_sprite: ByteArray,
+    pub attack_sprite: ByteArray,
+    pub mugshot: ByteArray,
+    pub hit_sprite: ByteArray,
 }
 
 #[derive(Clone, Drop, Serde, Introspect)]
 pub struct UEnemy {
     pub uid: u32,
     pub health: u32,
+    pub max_health: u32,
     pub attack_power: u8,
     pub special_attack: bool,
     pub level: u8,
     pub skin: ByteArray,
+    pub idle_sprite: ByteArray,
+    pub attack_sprite: ByteArray,
+    pub mugshot: ByteArray,
+    pub hit_sprite: ByteArray,
 }
 
 
