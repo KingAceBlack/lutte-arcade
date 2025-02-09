@@ -1,5 +1,5 @@
 [package]
-cairo-version = "=2.8.4"
+cairo-version = "=2.9.2"
 name = "lutte"
 version = "0.0.0"
 # edition = "2024_07"
@@ -12,7 +12,8 @@ migrate = "sozo build && sozo migrate --fee eth && sozo inspect"
 
 
 [dependencies]
-dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.5" }
+dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.1.2" }
+
 
 
 [tool.dojo]
@@ -23,7 +24,7 @@ build-external-contracts = ["dojo::world::world_contract::world"]
 
 
 [dev-dependencies]
-dojo_cairo_test = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.5" }
+dojo_cairo_test = { git = "https://github.com/dojoengine/dojo", tag = "v1.1.2" }
 
 [profile.dev.tool.dojo.env]
 rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
