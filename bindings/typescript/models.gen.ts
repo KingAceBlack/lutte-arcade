@@ -1,79 +1,39 @@
 import type { SchemaType as ISchemaType } from "@dojoengine/sdk";
 
-import type { BigNumberish } from 'starknet';
+import { BigNumberish } from 'starknet';
 
-type RemoveFieldOrder<T> = T extends object
-  ? Omit<
-      {
-        [K in keyof T]: T[K] extends object ? RemoveFieldOrder<T[K]> : T[K];
-      },
-      'fieldOrder'
-    >
-  : T;
-// Type definition for `lutte::models::player::EnemiesListValue` struct
-export interface EnemiesListValue {
-	fieldOrder: string[];
-	enemies: Array<UEnemy>;
-}
-export type InputEnemiesListValue = RemoveFieldOrder<EnemiesListValue>;
+type WithFieldOrder<T> = T & { fieldOrder: string[] };
 
 // Type definition for `lutte::models::player::EnemiesList` struct
 export interface EnemiesList {
-	fieldOrder: string[];
 	id: BigNumberish;
 	enemies: Array<UEnemy>;
 }
-export type InputEnemiesList = RemoveFieldOrder<EnemiesList>;
 
-// Type definition for `lutte::models::player::UEnemy` struct
-export interface UEnemy {
-	fieldOrder: string[];
-	uid: BigNumberish;
-	health: BigNumberish;
-	max_health: BigNumberish;
-	attack_power: BigNumberish;
-	special_attack: boolean;
-	level: BigNumberish;
-	skin: string;
-	idle_sprite: string;
-	attack_sprite: string;
-	mugshot: string;
-	hit_sprite: string;
+// Type definition for `lutte::models::player::EnemiesListValue` struct
+export interface EnemiesListValue {
+	enemies: Array<UEnemy>;
 }
-export type InputUEnemy = RemoveFieldOrder<UEnemy>;
-
-// Type definition for `lutte::models::player::EnemyValue` struct
-export interface EnemyValue {
-	fieldOrder: string[];
-	health: BigNumberish;
-	attack_power: BigNumberish;
-	special_attack: boolean;
-	level: BigNumberish;
-}
-export type InputEnemyValue = RemoveFieldOrder<EnemyValue>;
 
 // Type definition for `lutte::models::player::Enemy` struct
 export interface Enemy {
-	fieldOrder: string[];
 	uid: BigNumberish;
 	health: BigNumberish;
 	attack_power: BigNumberish;
 	special_attack: boolean;
 	level: BigNumberish;
 }
-export type InputEnemy = RemoveFieldOrder<Enemy>;
 
-// Type definition for `lutte::models::player::PlayableCharacterList` struct
-export interface PlayableCharacterList {
-	fieldOrder: string[];
-	id: BigNumberish;
-	players: Array<PlayableCharacter>;
+// Type definition for `lutte::models::player::EnemyValue` struct
+export interface EnemyValue {
+	health: BigNumberish;
+	attack_power: BigNumberish;
+	special_attack: boolean;
+	level: BigNumberish;
 }
-export type InputPlayableCharacterList = RemoveFieldOrder<PlayableCharacterList>;
 
 // Type definition for `lutte::models::player::PlayableCharacter` struct
 export interface PlayableCharacter {
-	fieldOrder: string[];
 	uid: BigNumberish;
 	skin: string;
 	health: BigNumberish;
@@ -85,32 +45,22 @@ export interface PlayableCharacter {
 	attack_sprite: string;
 	mugshot: string;
 	hit_sprite: string;
+	folder: string;
 }
-export type InputPlayableCharacter = RemoveFieldOrder<PlayableCharacter>;
+
+// Type definition for `lutte::models::player::PlayableCharacterList` struct
+export interface PlayableCharacterList {
+	id: BigNumberish;
+	players: Array<PlayableCharacter>;
+}
 
 // Type definition for `lutte::models::player::PlayableCharacterListValue` struct
 export interface PlayableCharacterListValue {
-	fieldOrder: string[];
 	players: Array<PlayableCharacter>;
 }
-export type InputPlayableCharacterListValue = RemoveFieldOrder<PlayableCharacterListValue>;
-
-// Type definition for `lutte::models::player::PlayerValue` struct
-export interface PlayerValue {
-	fieldOrder: string[];
-	health: BigNumberish;
-	demeanor: BigNumberish;
-	attack_power: BigNumberish;
-	special_attack: boolean;
-	current_enemy: UEnemy;
-	skin_id: BigNumberish;
-	last_attack: boolean;
-}
-export type InputPlayerValue = RemoveFieldOrder<PlayerValue>;
 
 // Type definition for `lutte::models::player::Player` struct
 export interface Player {
-	fieldOrder: string[];
 	address: string;
 	health: BigNumberish;
 	demeanor: BigNumberish;
@@ -119,88 +69,102 @@ export interface Player {
 	current_enemy: UEnemy;
 	skin_id: BigNumberish;
 	last_attack: boolean;
+	character: PlayableCharacter;
 }
-export type InputPlayer = RemoveFieldOrder<Player>;
 
-// Type definition for `lutte::models::player::SessionDetail` struct
-export interface SessionDetail {
-	fieldOrder: string[];
-	id: BigNumberish;
-	player: string;
+// Type definition for `lutte::models::player::PlayerValue` struct
+export interface PlayerValue {
+	health: BigNumberish;
+	demeanor: BigNumberish;
+	attack_power: BigNumberish;
+	special_attack: boolean;
+	current_enemy: UEnemy;
+	skin_id: BigNumberish;
+	last_attack: boolean;
+	character: PlayableCharacter;
 }
-export type InputSessionDetail = RemoveFieldOrder<SessionDetail>;
-
-// Type definition for `lutte::models::player::SessionValue` struct
-export interface SessionValue {
-	fieldOrder: string[];
-	player: Array<SessionDetail>;
-}
-export type InputSessionValue = RemoveFieldOrder<SessionValue>;
 
 // Type definition for `lutte::models::player::Session` struct
 export interface Session {
-	fieldOrder: string[];
 	id: string;
 	player: Array<SessionDetail>;
 }
-export type InputSession = RemoveFieldOrder<Session>;
+
+// Type definition for `lutte::models::player::SessionDetail` struct
+export interface SessionDetail {
+	id: BigNumberish;
+	player: string;
+}
 
 // Type definition for `lutte::models::player::SessionDetailValue` struct
 export interface SessionDetailValue {
-	fieldOrder: string[];
 	player: string;
 }
-export type InputSessionDetailValue = RemoveFieldOrder<SessionDetailValue>;
+
+// Type definition for `lutte::models::player::SessionValue` struct
+export interface SessionValue {
+	player: Array<SessionDetail>;
+}
+
+// Type definition for `lutte::models::player::UEnemy` struct
+export interface UEnemy {
+	uid: BigNumberish;
+	health: BigNumberish;
+	max_health: BigNumberish;
+	attack_power: BigNumberish;
+	special_attack: boolean;
+	level: BigNumberish;
+	skin: string;
+	idle_sprite: string;
+	attack_sprite: string;
+	mugshot: string;
+	hit_sprite: string;
+	folder: string;
+}
+
+// Type definition for `lutte::systems::lutte::actions::GameEvent` struct
+export interface GameEvent {
+	id: string;
+	won: boolean;
+	died: boolean;
+}
+
+// Type definition for `lutte::systems::lutte::actions::GameEventValue` struct
+export interface GameEventValue {
+	won: boolean;
+	died: boolean;
+}
 
 export interface SchemaType extends ISchemaType {
 	lutte: {
-		EnemiesListValue: EnemiesListValue,
-		EnemiesList: EnemiesList,
-		UEnemy: UEnemy,
-		EnemyValue: EnemyValue,
-		Enemy: Enemy,
-		PlayableCharacterList: PlayableCharacterList,
-		PlayableCharacter: PlayableCharacter,
-		PlayableCharacterListValue: PlayableCharacterListValue,
-		PlayerValue: PlayerValue,
-		Player: Player,
-		SessionDetail: SessionDetail,
-		SessionValue: SessionValue,
-		Session: Session,
-		SessionDetailValue: SessionDetailValue,
+		EnemiesList: WithFieldOrder<EnemiesList>,
+		EnemiesListValue: WithFieldOrder<EnemiesListValue>,
+		Enemy: WithFieldOrder<Enemy>,
+		EnemyValue: WithFieldOrder<EnemyValue>,
+		PlayableCharacter: WithFieldOrder<PlayableCharacter>,
+		PlayableCharacterList: WithFieldOrder<PlayableCharacterList>,
+		PlayableCharacterListValue: WithFieldOrder<PlayableCharacterListValue>,
+		Player: WithFieldOrder<Player>,
+		PlayerValue: WithFieldOrder<PlayerValue>,
+		Session: WithFieldOrder<Session>,
+		SessionDetail: WithFieldOrder<SessionDetail>,
+		SessionDetailValue: WithFieldOrder<SessionDetailValue>,
+		SessionValue: WithFieldOrder<SessionValue>,
+		UEnemy: WithFieldOrder<UEnemy>,
+		GameEvent: WithFieldOrder<GameEvent>,
+		GameEventValue: WithFieldOrder<GameEventValue>,
 	},
 }
 export const schema: SchemaType = {
 	lutte: {
-		EnemiesListValue: {
-			fieldOrder: ['enemies'],
-			enemies: [{ fieldOrder: ['uid', 'health', 'max_health', 'attack_power', 'special_attack', 'level', 'skin', 'idle_sprite', 'attack_sprite', 'mugshot', 'hit_sprite'], uid: 0, health: 0, max_health: 0, attack_power: 0, special_attack: false, level: 0, skin: "", idle_sprite: "", attack_sprite: "", mugshot: "", hit_sprite: "", }],
-		},
 		EnemiesList: {
 			fieldOrder: ['id', 'enemies'],
 			id: 0,
-			enemies: [{ fieldOrder: ['uid', 'health', 'max_health', 'attack_power', 'special_attack', 'level', 'skin', 'idle_sprite', 'attack_sprite', 'mugshot', 'hit_sprite'], uid: 0, health: 0, max_health: 0, attack_power: 0, special_attack: false, level: 0, skin: "", idle_sprite: "", attack_sprite: "", mugshot: "", hit_sprite: "", }],
+			enemies: [{ uid: 0, health: 0, max_health: 0, attack_power: 0, special_attack: false, level: 0, skin: "", idle_sprite: "", attack_sprite: "", mugshot: "", hit_sprite: "", folder: "", }],
 		},
-		UEnemy: {
-			fieldOrder: ['uid', 'health', 'max_health', 'attack_power', 'special_attack', 'level', 'skin', 'idle_sprite', 'attack_sprite', 'mugshot', 'hit_sprite'],
-			uid: 0,
-			health: 0,
-			max_health: 0,
-			attack_power: 0,
-			special_attack: false,
-			level: 0,
-			skin: "",
-			idle_sprite: "",
-			attack_sprite: "",
-			mugshot: "",
-			hit_sprite: "",
-		},
-		EnemyValue: {
-			fieldOrder: ['health', 'attack_power', 'special_attack', 'level'],
-			health: 0,
-			attack_power: 0,
-			special_attack: false,
-			level: 0,
+		EnemiesListValue: {
+			fieldOrder: ['enemies'],
+			enemies: [{ uid: 0, health: 0, max_health: 0, attack_power: 0, special_attack: false, level: 0, skin: "", idle_sprite: "", attack_sprite: "", mugshot: "", hit_sprite: "", folder: "", }],
 		},
 		Enemy: {
 			fieldOrder: ['uid', 'health', 'attack_power', 'special_attack', 'level'],
@@ -210,93 +174,121 @@ export const schema: SchemaType = {
 			special_attack: false,
 			level: 0,
 		},
-		PlayableCharacterList: {
-			fieldOrder: ['id', 'players'],
-			id: 0,
-			players: [{ fieldOrder: ['uid', 'skin', 'health', 'attack_power', 'special_attack', 'level', 'max_health', 'idle_sprite', 'attack_sprite', 'mugshot', 'hit_sprite'], uid: 0, skin: "", health: 0, attack_power: 0, special_attack: false, level: 0, max_health: 0, idle_sprite: "", attack_sprite: "", mugshot: "", hit_sprite: "", }],
+		EnemyValue: {
+			fieldOrder: ['health', 'attack_power', 'special_attack', 'level'],
+			health: 0,
+			attack_power: 0,
+			special_attack: false,
+			level: 0,
 		},
 		PlayableCharacter: {
-			fieldOrder: ['uid', 'skin', 'health', 'attack_power', 'special_attack', 'level', 'max_health', 'idle_sprite', 'attack_sprite', 'mugshot', 'hit_sprite'],
+			fieldOrder: ['uid', 'skin', 'health', 'attack_power', 'special_attack', 'level', 'max_health', 'idle_sprite', 'attack_sprite', 'mugshot', 'hit_sprite', 'folder'],
 			uid: 0,
-			skin: "",
+		skin: "",
 			health: 0,
 			attack_power: 0,
 			special_attack: false,
 			level: 0,
 			max_health: 0,
-			idle_sprite: "",
-			attack_sprite: "",
-			mugshot: "",
-			hit_sprite: "",
+		idle_sprite: "",
+		attack_sprite: "",
+		mugshot: "",
+		hit_sprite: "",
+		folder: "",
+		},
+		PlayableCharacterList: {
+			fieldOrder: ['id', 'players'],
+			id: 0,
+			players: [{ uid: 0, skin: "", health: 0, attack_power: 0, special_attack: false, level: 0, max_health: 0, idle_sprite: "", attack_sprite: "", mugshot: "", hit_sprite: "", folder: "", }],
 		},
 		PlayableCharacterListValue: {
 			fieldOrder: ['players'],
-			players: [{ fieldOrder: ['uid', 'skin', 'health', 'attack_power', 'special_attack', 'level', 'max_health', 'idle_sprite', 'attack_sprite', 'mugshot', 'hit_sprite'], uid: 0, skin: "", health: 0, attack_power: 0, special_attack: false, level: 0, max_health: 0, idle_sprite: "", attack_sprite: "", mugshot: "", hit_sprite: "", }],
-		},
-		PlayerValue: {
-			fieldOrder: ['health', 'demeanor', 'attack_power', 'special_attack', 'current_enemy', 'skin_id', 'last_attack'],
-			health: 0,
-			demeanor: 0,
-			attack_power: 0,
-			special_attack: false,
-			current_enemy: { fieldOrder: ['uid', 'health', 'max_health', 'attack_power', 'special_attack', 'level', 'skin', 'idle_sprite', 'attack_sprite', 'mugshot', 'hit_sprite'], uid: 0, health: 0, max_health: 0, attack_power: 0, special_attack: false, level: 0, skin: "", idle_sprite: "", attack_sprite: "", mugshot: "", hit_sprite: "", },
-			skin_id: 0,
-			last_attack: false,
+			players: [{ uid: 0, skin: "", health: 0, attack_power: 0, special_attack: false, level: 0, max_health: 0, idle_sprite: "", attack_sprite: "", mugshot: "", hit_sprite: "", folder: "", }],
 		},
 		Player: {
-			fieldOrder: ['address', 'health', 'demeanor', 'attack_power', 'special_attack', 'current_enemy', 'skin_id', 'last_attack'],
+			fieldOrder: ['address', 'health', 'demeanor', 'attack_power', 'special_attack', 'current_enemy', 'skin_id', 'last_attack', 'character'],
 			address: "",
 			health: 0,
 			demeanor: 0,
 			attack_power: 0,
 			special_attack: false,
-			current_enemy: { fieldOrder: ['uid', 'health', 'max_health', 'attack_power', 'special_attack', 'level', 'skin', 'idle_sprite', 'attack_sprite', 'mugshot', 'hit_sprite'], uid: 0, health: 0, max_health: 0, attack_power: 0, special_attack: false, level: 0, skin: "", idle_sprite: "", attack_sprite: "", mugshot: "", hit_sprite: "", },
+		current_enemy: { uid: 0, health: 0, max_health: 0, attack_power: 0, special_attack: false, level: 0, skin: "", idle_sprite: "", attack_sprite: "", mugshot: "", hit_sprite: "", folder: "", },
 			skin_id: 0,
 			last_attack: false,
+		character: { uid: 0, skin: "", health: 0, attack_power: 0, special_attack: false, level: 0, max_health: 0, idle_sprite: "", attack_sprite: "", mugshot: "", hit_sprite: "", folder: "", },
+		},
+		PlayerValue: {
+			fieldOrder: ['health', 'demeanor', 'attack_power', 'special_attack', 'current_enemy', 'skin_id', 'last_attack', 'character'],
+			health: 0,
+			demeanor: 0,
+			attack_power: 0,
+			special_attack: false,
+		current_enemy: { uid: 0, health: 0, max_health: 0, attack_power: 0, special_attack: false, level: 0, skin: "", idle_sprite: "", attack_sprite: "", mugshot: "", hit_sprite: "", folder: "", },
+			skin_id: 0,
+			last_attack: false,
+		character: { uid: 0, skin: "", health: 0, attack_power: 0, special_attack: false, level: 0, max_health: 0, idle_sprite: "", attack_sprite: "", mugshot: "", hit_sprite: "", folder: "", },
+		},
+		Session: {
+			fieldOrder: ['id', 'player'],
+			id: "",
+			player: [{ id: 0, player: "", }],
 		},
 		SessionDetail: {
 			fieldOrder: ['id', 'player'],
 			id: 0,
 			player: "",
 		},
-		SessionValue: {
-			fieldOrder: ['player'],
-			player: [{ fieldOrder: ['id', 'player'], id: 0, player: "", }],
-		},
-		Session: {
-			fieldOrder: ['id', 'player'],
-			id: "",
-			player: [{ fieldOrder: ['id', 'player'], id: 0, player: "", }],
-		},
 		SessionDetailValue: {
 			fieldOrder: ['player'],
 			player: "",
 		},
+		SessionValue: {
+			fieldOrder: ['player'],
+			player: [{ id: 0, player: "", }],
+		},
+		UEnemy: {
+			fieldOrder: ['uid', 'health', 'max_health', 'attack_power', 'special_attack', 'level', 'skin', 'idle_sprite', 'attack_sprite', 'mugshot', 'hit_sprite', 'folder'],
+			uid: 0,
+			health: 0,
+			max_health: 0,
+			attack_power: 0,
+			special_attack: false,
+			level: 0,
+		skin: "",
+		idle_sprite: "",
+		attack_sprite: "",
+		mugshot: "",
+		hit_sprite: "",
+		folder: "",
+		},
+		GameEvent: {
+			fieldOrder: ['id', 'won', 'died'],
+			id: "",
+			won: false,
+			died: false,
+		},
+		GameEventValue: {
+			fieldOrder: ['won', 'died'],
+			won: false,
+			died: false,
+		},
 	},
 };
-// Type definition for ERC__Balance struct
-export type ERC__Type = 'ERC20' | 'ERC721';
-export interface ERC__Balance {
-    fieldOrder: string[];
-    balance: string;
-    type: string;
-    tokenMetadata: ERC__Token;
-}
-export interface ERC__Token {
-    fieldOrder: string[];
-    name: string;
-    symbol: string;
-    tokenId: string;
-    decimals: string;
-    contractAddress: string;
-}
-export interface ERC__Transfer {
-    fieldOrder: string[];
-    from: string;
-    to: string;
-    amount: string;
-    type: string;
-    executedAt: string;
-    tokenMetadata: ERC__Token;
-    transactionHash: string;
+export enum ModelsMapping {
+	EnemiesList = 'lutte-EnemiesList',
+	EnemiesListValue = 'lutte-EnemiesListValue',
+	Enemy = 'lutte-Enemy',
+	EnemyValue = 'lutte-EnemyValue',
+	PlayableCharacter = 'lutte-PlayableCharacter',
+	PlayableCharacterList = 'lutte-PlayableCharacterList',
+	PlayableCharacterListValue = 'lutte-PlayableCharacterListValue',
+	Player = 'lutte-Player',
+	PlayerValue = 'lutte-PlayerValue',
+	Session = 'lutte-Session',
+	SessionDetail = 'lutte-SessionDetail',
+	SessionDetailValue = 'lutte-SessionDetailValue',
+	SessionValue = 'lutte-SessionValue',
+	UEnemy = 'lutte-UEnemy',
+	GameEvent = 'lutte-GameEvent',
+	GameEventValue = 'lutte-GameEventValue',
 }

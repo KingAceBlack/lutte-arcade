@@ -1,7 +1,7 @@
 use starknet::{ContractAddress};
 
 
-#[derive(Drop, Serde)]
+#[derive(Clone, Drop, Serde)]
 #[dojo::model]
 pub struct Player {
     #[key]
@@ -13,6 +13,7 @@ pub struct Player {
     pub current_enemy: UEnemy,
     pub skin_id: u8,
     pub last_attack: bool,
+    pub character: PlayableCharacter,
 }
 
 // skin can be 1, 2, 3 ...etc
@@ -57,6 +58,7 @@ pub struct PlayableCharacter {
     pub attack_sprite: ByteArray,
     pub mugshot: ByteArray,
     pub hit_sprite: ByteArray,
+    pub folder: ByteArray,
 }
 
 #[derive(Clone, Drop, Serde, Introspect)]
@@ -72,6 +74,7 @@ pub struct UEnemy {
     pub attack_sprite: ByteArray,
     pub mugshot: ByteArray,
     pub hit_sprite: ByteArray,
+    pub folder: ByteArray,
 }
 
 

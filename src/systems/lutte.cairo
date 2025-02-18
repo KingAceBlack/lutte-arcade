@@ -25,6 +25,7 @@ trait IBattleActions<T> {
         skin: ByteArray,
         health: u32,
         attack_power: u8,
+        folder: ByteArray,
         idle_sprite: ByteArray,
         attack_sprite: ByteArray,
         mugshot: ByteArray,
@@ -35,6 +36,7 @@ trait IBattleActions<T> {
         skin: ByteArray,
         health: u32,
         attack_power: u8,
+        folder: ByteArray,
         idle_sprite: ByteArray,
         attack_sprite: ByteArray,
         mugshot: ByteArray,
@@ -46,6 +48,7 @@ trait IBattleActions<T> {
         health: u32,
         attack_power: u8,
         level: u8,
+        folder: ByteArray,
         idle_sprite: ByteArray,
         attack_sprite: ByteArray,
         mugshot: ByteArray,
@@ -57,6 +60,7 @@ trait IBattleActions<T> {
         health: u32,
         attack_power: u8,
         level: u8,
+        folder: ByteArray,
         idle_sprite: ByteArray,
         attack_sprite: ByteArray,
         mugshot: ByteArray,
@@ -71,6 +75,11 @@ trait IBattleActions<T> {
 const depressed: u8 = 0; // 0-5 
 const neutral: u8 = 6; // 6-15
 const motivated: u8 = 16; // 16-20
+
+// demeanor values
+const depressed_multiplier: u8 = 1; // 0-5 
+const neutral_multiplier: u8 = 10; // 6-15
+const motivated_multiplier: u8 = 100; // 16-20
 
 #[dojo::contract]
 mod actions {
@@ -159,6 +168,7 @@ mod actions {
             skin: ByteArray,
             health: u32,
             attack_power: u8,
+            folder: ByteArray,
             idle_sprite: ByteArray,
             attack_sprite: ByteArray,
             mugshot: ByteArray,
@@ -183,6 +193,7 @@ mod actions {
                 attack_sprite,
                 mugshot,
                 hit_sprite,
+                folder,
             };
             let first_enemy = EnemiesList { id: 0_u8, enemies: array![new_enemy] };
             world.write_model(@first_enemy);
@@ -193,6 +204,7 @@ mod actions {
             skin: ByteArray,
             health: u32,
             attack_power: u8,
+            folder: ByteArray,
             idle_sprite: ByteArray,
             attack_sprite: ByteArray,
             mugshot: ByteArray,
@@ -217,6 +229,7 @@ mod actions {
                 attack_sprite,
                 mugshot,
                 hit_sprite,
+                folder,
             };
 
             let first_character = PlayableCharacterList { id: uid, players: array![new_character] };
@@ -229,6 +242,7 @@ mod actions {
             health: u32,
             attack_power: u8,
             level: u8,
+            folder: ByteArray,
             idle_sprite: ByteArray,
             attack_sprite: ByteArray,
             mugshot: ByteArray,
@@ -253,6 +267,7 @@ mod actions {
                         attack_sprite,
                         mugshot,
                         hit_sprite,
+                        folder,
                     },
                 );
 
@@ -266,6 +281,7 @@ mod actions {
             health: u32,
             attack_power: u8,
             level: u8,
+            folder: ByteArray,
             idle_sprite: ByteArray,
             attack_sprite: ByteArray,
             mugshot: ByteArray,
@@ -290,6 +306,7 @@ mod actions {
                         attack_sprite,
                         mugshot,
                         hit_sprite,
+                        folder,
                     },
                 );
 
@@ -364,22 +381,19 @@ mod actions {
             }
 
             // Ensure enemy health does not underflow
-            if user_enemy.health < 0 {
-                user_enemy.health = 0;
+            if user_enemy.health == 0 {
                 let e = GameEvent { id: user_address, won: true, died: false };
                 world.emit_event(@e);
             }
 
             // emits user died
 
-            if player_data.health <= 0 {
-                player_data.health = 0;
+            if player_data.health == 0 {
                 let e = GameEvent { id: user_address, won: false, died: true };
                 world.emit_event(@e);
             }
 
-            if player_data.current_enemy.health <= 0 {
-                player_data.current_enemy.health = 0;
+            if player_data.current_enemy.health == 0 {
                 let e = GameEvent { id: user_address, won: true, died: false };
                 world.emit_event(@e);
             }
@@ -578,6 +592,7 @@ mod actions {
                         skin_id,
                         last_attack: false,
                         current_enemy: first_enemy,
+                        character: user_character.clone(),
                     },
                 );
         }
@@ -590,8 +605,6 @@ mod actions {
             let random_number: u32 = get_random_value(walletAddress)
                 .try_into()
                 .unwrap(); // Generates a random number
-
-            // println!("hello {}", random_number);
 
             let mut cumulative = 0_u32;
             let mut outcome: felt252 = 0;

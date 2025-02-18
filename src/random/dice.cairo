@@ -70,6 +70,15 @@ mod tests {
         assert(dice.roll() == 3, 'Wrong dice value');
     }
 
+
+    #[test]
+    fn test_dice_roll() {
+        let mut dice = DiceTrait::new(DICE_FACE_COUNT, DICE_SEED);
+        let roll_value = dice.roll();
+        println!("roll value is {roll_value}")
+    }
+
+
     #[test]
     fn test_dice_new_roll_overflow() {
         let mut dice = DiceTrait::new(DICE_FACE_COUNT, DICE_SEED);

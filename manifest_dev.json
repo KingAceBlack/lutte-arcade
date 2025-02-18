@@ -1,8 +1,8 @@
 {
   "world": {
-    "class_hash": "0x45575a88cc5cef1e444c77ce60b7b4c9e73a01cbbe20926d5a4c72a94011410",
-    "address": "0x3f7cd2712d9faaa837ab2c5474fb474efc822eef797b1be3442c77eee684436",
-    "seed": "lutte",
+    "class_hash": "0x4b767fda48530353c2e44e4b9433f4d75c6c9974aaff43ecc00de9455eb71b8",
+    "address": "0x62b12412b85c20e59f17872f228847a9bc900643adc887c9e6858b96064167d",
+    "seed": "lutte-arcade",
     "name": "lutte",
     "entrypoints": [
       "uuid",
@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x2704e92fa8446e8618ef5592670e2460f39d148fb3804a92b5880952c7402e5",
-      "class_hash": "0x6bb1e39966a96b029538c9d9dc4449cdc2185b9ecfdd018a06be649089cbff7",
+      "address": "0x75810a08d1ba8d99c7e79a8d0c1ff63b447f759cc39fe5b2ee1972124200b16",
+      "class_hash": "0x15ec4c7474421e3bcd9577e27dc9b0a0e561cb3b0c01bc80ce1c7997d7b624e",
       "abi": [
         {
           "type": "impl",
@@ -1371,6 +1371,10 @@
             {
               "name": "hit_sprite",
               "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "folder",
+              "type": "core::byte_array::ByteArray"
             }
           ]
         },
@@ -1421,6 +1425,10 @@
             {
               "name": "hit_sprite",
               "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "folder",
+              "type": "core::byte_array::ByteArray"
             }
           ]
         },
@@ -1459,6 +1467,10 @@
             {
               "name": "last_attack",
               "type": "core::bool"
+            },
+            {
+              "name": "character",
+              "type": "lutte::models::player::PlayableCharacter"
             }
           ]
         },
@@ -1540,6 +1552,10 @@
                   "type": "core::integer::u8"
                 },
                 {
+                  "name": "folder",
+                  "type": "core::byte_array::ByteArray"
+                },
+                {
                   "name": "idle_sprite",
                   "type": "core::byte_array::ByteArray"
                 },
@@ -1574,6 +1590,10 @@
                 {
                   "name": "attack_power",
                   "type": "core::integer::u8"
+                },
+                {
+                  "name": "folder",
+                  "type": "core::byte_array::ByteArray"
                 },
                 {
                   "name": "idle_sprite",
@@ -1616,6 +1636,10 @@
                   "type": "core::integer::u8"
                 },
                 {
+                  "name": "folder",
+                  "type": "core::byte_array::ByteArray"
+                },
+                {
                   "name": "idle_sprite",
                   "type": "core::byte_array::ByteArray"
                 },
@@ -1654,6 +1678,10 @@
                 {
                   "name": "level",
                   "type": "core::integer::u8"
+                },
+                {
+                  "name": "folder",
+                  "type": "core::byte_array::ByteArray"
                 },
                 {
                   "name": "idle_sprite",
@@ -1830,37 +1858,37 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x6d10f2a9e5d7f0595fe722f61dc2e47a9755a6f0d49e2f50a702a4f9591a6e3",
+      "class_hash": "0x74b11e1f399dedc1d10c3eab0661d5583f55089ae279872a134dfe335576c2e",
       "tag": "lutte-EnemiesList",
       "selector": "0x2ccf077fa97585c3dd51d038fa1e6a8deaa77d9ad24c068462035dde4d16be9"
     },
     {
       "members": [],
-      "class_hash": "0x7a946a4566237571dff1fc9be586e94f5d68f66652ea738f9b138e31fc1781d",
+      "class_hash": "0x725edad78ab08acba1ec3810ae2c5f4c22dad2978368e2e3faefe0efd287a35",
       "tag": "lutte-Enemy",
       "selector": "0x5e8455d13393e0a620670348931a6aea86190e702a5955088e8f44851b2e6f6"
     },
     {
       "members": [],
-      "class_hash": "0x568d7408ccb9c02032356003a889ac4caa62637e113aa363e541601f53725d9",
+      "class_hash": "0x22764e34a496497425848761c176063d3d23ffa54c53228c014c5c23cf50632",
       "tag": "lutte-PlayableCharacterList",
       "selector": "0x6b018d4d35e74133968fc43665e34613efd5228fb9cfccfd97aefe9cf2599"
     },
     {
       "members": [],
-      "class_hash": "0x690ac54f8618dd6c9605e7fa96fbdb1cd0080da177f3d5faf0ebe54ca89632b",
+      "class_hash": "0x110a3fba2963eb60b12b86e18b687cdb7ddd6886e661727c8178a856492e9c1",
       "tag": "lutte-Player",
       "selector": "0x69d4345925d69b0ebbd11a22b726eedcdf6555dc38890062965eb0c36fc2bfd"
     },
     {
       "members": [],
-      "class_hash": "0x48d77ca566c6a11f535c4f264b29edd9dc3625548dc747b4c5c576adbf94434",
+      "class_hash": "0x377624199fc80ca46b93e146e5577aee5cdc5d73a271ef2441bb16496cecf76",
       "tag": "lutte-Session",
       "selector": "0x75d642f936ff9e0052617045c34d09c555f785e18cb420540804faf1e3db7a7"
     },
     {
       "members": [],
-      "class_hash": "0x641c99284a01ab0bddd727f3688b37f5b276049a4dd1dfdba56bf6ec85697f6",
+      "class_hash": "0x7026de33c5d8bc65eb487b1110aab94a3d7b4056872790f58613523d40ebf29",
       "tag": "lutte-SessionDetail",
       "selector": "0x3557a32f12a855df2658076cf346745c6948562846023b7706343a2e39e4442"
     }
@@ -1868,7 +1896,7 @@
   "events": [
     {
       "members": [],
-      "class_hash": "0x28f3a43ca05d35dcc1e7b124404c10345c6d255d517372be6147a962ecd21a7",
+      "class_hash": "0xe2a748533b2115e9d5f64a00b0feec2988360bf63dc5749f25fc4afa412a5d",
       "tag": "lutte-GameEvent",
       "selector": "0x559bb144d97b67c73245dedd8a6910fa5f55545494e389327e6a3353c5afeff"
     }
