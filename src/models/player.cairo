@@ -14,7 +14,11 @@ pub struct Player {
     pub skin_id: u8,
     pub last_attack: bool,
     pub character: PlayableCharacter,
+    pub last_attack_state: u32,
 }
+
+// last attack state can be 0, 1, 2, 3, 4 -- 1- successful attack, 2- glazed attack, 3- missed
+// attack, 4- critical attack, 0- not yet attacked
 
 // skin can be 1, 2, 3 ...etc
 

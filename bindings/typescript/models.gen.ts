@@ -70,6 +70,7 @@ export interface Player {
 	skin_id: BigNumberish;
 	last_attack: boolean;
 	character: PlayableCharacter;
+	last_attack_state: BigNumberish;
 }
 
 // Type definition for `lutte::models::player::PlayerValue` struct
@@ -82,6 +83,7 @@ export interface PlayerValue {
 	skin_id: BigNumberish;
 	last_attack: boolean;
 	character: PlayableCharacter;
+	last_attack_state: BigNumberish;
 }
 
 // Type definition for `lutte::models::player::Session` struct
@@ -206,7 +208,7 @@ export const schema: SchemaType = {
 			players: [{ uid: 0, skin: "", health: 0, attack_power: 0, special_attack: false, level: 0, max_health: 0, idle_sprite: "", attack_sprite: "", mugshot: "", hit_sprite: "", folder: "", }],
 		},
 		Player: {
-			fieldOrder: ['address', 'health', 'demeanor', 'attack_power', 'special_attack', 'current_enemy', 'skin_id', 'last_attack', 'character'],
+			fieldOrder: ['address', 'health', 'demeanor', 'attack_power', 'special_attack', 'current_enemy', 'skin_id', 'last_attack', 'character', 'last_attack_state'],
 			address: "",
 			health: 0,
 			demeanor: 0,
@@ -216,9 +218,10 @@ export const schema: SchemaType = {
 			skin_id: 0,
 			last_attack: false,
 		character: { uid: 0, skin: "", health: 0, attack_power: 0, special_attack: false, level: 0, max_health: 0, idle_sprite: "", attack_sprite: "", mugshot: "", hit_sprite: "", folder: "", },
+			last_attack_state: 0,
 		},
 		PlayerValue: {
-			fieldOrder: ['health', 'demeanor', 'attack_power', 'special_attack', 'current_enemy', 'skin_id', 'last_attack', 'character'],
+			fieldOrder: ['health', 'demeanor', 'attack_power', 'special_attack', 'current_enemy', 'skin_id', 'last_attack', 'character', 'last_attack_state'],
 			health: 0,
 			demeanor: 0,
 			attack_power: 0,
@@ -227,6 +230,7 @@ export const schema: SchemaType = {
 			skin_id: 0,
 			last_attack: false,
 		character: { uid: 0, skin: "", health: 0, attack_power: 0, special_attack: false, level: 0, max_health: 0, idle_sprite: "", attack_sprite: "", mugshot: "", hit_sprite: "", folder: "", },
+			last_attack_state: 0,
 		},
 		Session: {
 			fieldOrder: ['id', 'player'],

@@ -1253,7 +1253,7 @@
   "contracts": [
     {
       "address": "0x75810a08d1ba8d99c7e79a8d0c1ff63b447f759cc39fe5b2ee1972124200b16",
-      "class_hash": "0x15ec4c7474421e3bcd9577e27dc9b0a0e561cb3b0c01bc80ce1c7997d7b624e",
+      "class_hash": "0x70ac2f3727e3a0d9ce086857953e735447f6e9ecdba8065aeb79bcf62ee8bb9",
       "abi": [
         {
           "type": "impl",
@@ -1471,6 +1471,10 @@
             {
               "name": "character",
               "type": "lutte::models::player::PlayableCharacter"
+            },
+            {
+              "name": "last_attack_state",
+              "type": "core::integer::u32"
             }
           ]
         },
@@ -1876,7 +1880,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x110a3fba2963eb60b12b86e18b687cdb7ddd6886e661727c8178a856492e9c1",
+      "class_hash": "0x446f4634544171a3ea880ec2291fc6b41a307a7aec208686508755b09e1d4d8",
       "tag": "lutte-Player",
       "selector": "0x69d4345925d69b0ebbd11a22b726eedcdf6555dc38890062965eb0c36fc2bfd"
     },

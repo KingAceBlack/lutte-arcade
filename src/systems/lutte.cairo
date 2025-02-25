@@ -362,21 +362,34 @@ mod actions {
 
             // TODO fix underflow in health and enemy health... set to zero
 
+            // last attack state can be 0, 1, 2, 3, 4 -- 1- successful attack, 2- glazed attack, 3-
+            // missed attack, 4- critical attack, 0- not yet attacked
+
             // Apply changes based on the outcome
             if outcome == 1 {
                 // Successful Attack
+                player_data.last_attack_state = 1;
                 player_data.demeanor += 3;
-                user_enemy.health -= 20; // Standard damage
+                user_enemy
+                    .health = self
+                    .safe_math_to_zero(user_enemy.health, 20); // Standard damage
             } else if outcome == 2 {
                 // Glazed Attack
+                player_data.last_attack_state = 2;
                 player_data.demeanor += 1; // Minor boost
-                user_enemy.health -= 5; // Small amount of damage
+                user_enemy
+                    .health = self
+                    .safe_math_to_zero(user_enemy.health, 5); // Small amount of damage
             } else if outcome == 3 { // Missed Attack
-            // No demeanor change or health deduction
+                player_data.last_attack_state = 3;
+                // No demeanor change or health deduction
             } else if outcome == 4 {
                 // Critical Attack
+                player_data.last_attack_state = 4;
                 player_data.demeanor += 5; // Higher boost
-                user_enemy.health -= 30; // Higher damage (10+ extra HP)
+                user_enemy
+                    .health = self
+                    .safe_math_to_zero(user_enemy.health, 30); // Higher damage (10+ extra HP)
             } else { // Default case, should not occur
             }
 
@@ -502,39 +515,27 @@ mod actions {
             if outcome == 1 {
                 // Successful Attack
                 // player_data.health -= 20; // Standard damage
-                player_data
-                    .health = self
-                    .safe_math_to_zero(player_data.health.try_into().unwrap(), 20)
-                    .try_into()
-                    .unwrap();
+                player_data.health = self.safe_math_to_zero(player_data.health, 20)
                 // player_data.demeanor -= 2;
-                player_data
-                    .demeanor = self
-                    .safe_math_to_zero(player_data.demeanor, 2)
-                    .try_into()
-                    .unwrap();
+            // player_data
+            //     .demeanor = self
+            //     .safe_math_to_zero(player_data.demeanor, 2)
+            //     .try_into()
+            //     .unwrap();
             } else if outcome == 2 {
                 // Glazed Attack
                 // player_data.health -= 5;
-                player_data
-                    .health = self
-                    .safe_math_to_zero(player_data.health.try_into().unwrap(), 5)
-                    .try_into()
-                    .unwrap();
+                player_data.health = self.safe_math_to_zero(player_data.health, 5)
             } else if outcome == 3 {
                 // Critical Attack
                 // player_data.health -= 30;
-                player_data
-                    .health = self
-                    .safe_math_to_zero(player_data.health.try_into().unwrap(), 30)
-                    .try_into()
-                    .unwrap();
+                player_data.health = self.safe_math_to_zero(player_data.health, 30)
                 // player_data.demeanor -= 2;
-                player_data
-                    .demeanor = self
-                    .safe_math_to_zero(player_data.demeanor, 2)
-                    .try_into()
-                    .unwrap();
+            // player_data
+            //     .demeanor = self
+            //     .safe_math_to_zero(player_data.demeanor, 2)
+            //     .try_into()
+            //     .unwrap();
             } else { // Default case, should not occur
             }
 
@@ -554,8 +555,8 @@ mod actions {
     #[generate_trait]
     impl InternalImpl of InternalUtils {
         fn safe_math_to_zero(
-            self: @ContractState, mut variable_to_update: u8, value_to_subtract: u8,
-        ) -> u8 {
+            self: @ContractState, mut variable_to_update: u32, value_to_subtract: u32,
+        ) -> u32 {
             if variable_to_update <= value_to_subtract {
                 0
             } else {
@@ -590,6 +591,7 @@ mod actions {
                         attack_power: *user_character.attack_power,
                         demeanor: 10,
                         skin_id,
+                        last_attack_state: 0,
                         last_attack: false,
                         current_enemy: first_enemy,
                         character: user_character.clone(),
