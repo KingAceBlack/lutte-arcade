@@ -83,6 +83,7 @@ trait IBattleActions<T> {
     );
     fn spawn(ref self: T, skin: u8);
     fn special_attack(ref self: T);
+    fn entity_count(self: @T, gid: u32) -> EntityCounter;
 }
 
 
@@ -156,8 +157,8 @@ mod actions {
         return converted_final_result;
     }
 
-    const ENEMY_GID: u32 = 1;
-    const PLAYER_GID: u32 = 0;
+    const PLAYER_GID: u32 = 1;
+    const ENEMY_GID: u32 = 2;
 
 
     #[abi(embed_v0)]
@@ -194,6 +195,7 @@ mod actions {
             // Construct list of keys (assuming uid is incremental)
             let mut player_keys: Array::<u32> = ArrayTrait::new();
             let mut i = 0;
+
             while i < player_count {
                 player_keys.append(i);
                 i += 1;
@@ -243,28 +245,28 @@ mod actions {
                 };
 
                 world.write_model(@new_character);
-                return;
+            } else {
+                let mut new_character = PlayableCharacter {
+                    uid: (player_count + 1).try_into().unwrap(),
+                    gid: PLAYER_GID,
+                    skin,
+                    health,
+                    attack_power,
+                    level,
+                    special_attack: true,
+                    max_health: health,
+                    idle_sprite,
+                    attack_sprite,
+                    mugshot,
+                    hit_sprite,
+                    folder,
+                    dash_sprite,
+                    dodge_sprite,
+                };
+
+                world.write_model(@new_character);
             }
-
-            let mut new_character = PlayableCharacter {
-                uid: (player_count + 1).try_into().unwrap(),
-                gid: PLAYER_GID,
-                skin,
-                health,
-                attack_power,
-                level,
-                special_attack: true,
-                max_health: health,
-                idle_sprite,
-                attack_sprite,
-                mugshot,
-                hit_sprite,
-                folder,
-                dash_sprite,
-                dodge_sprite,
-            };
-
-            world.write_model(@new_character);
+            self.increment_entity_number(PLAYER_GID);
         }
 
 
@@ -307,28 +309,28 @@ mod actions {
                 };
 
                 world.write_model(@new_enemy);
-                return;
+            } else {
+                let mut new_enemy = UEnemy {
+                    uid: (enemy_count + 1).try_into().unwrap(),
+                    gid: ENEMY_GID,
+                    health,
+                    attack_power,
+                    level,
+                    special_attack: true,
+                    max_health: health,
+                    skin,
+                    idle_sprite,
+                    attack_sprite,
+                    mugshot,
+                    hit_sprite,
+                    folder,
+                    dash_sprite,
+                    dodge_sprite,
+                };
+
+                world.write_model(@new_enemy)
             }
-
-            let mut new_enemy = UEnemy {
-                uid: (enemy_count + 1).try_into().unwrap(),
-                gid: ENEMY_GID,
-                health,
-                attack_power,
-                level,
-                special_attack: true,
-                max_health: health,
-                skin,
-                idle_sprite,
-                attack_sprite,
-                mugshot,
-                hit_sprite,
-                folder,
-                dash_sprite,
-                dodge_sprite,
-            };
-
-            world.write_model(@new_enemy);
+            self.increment_entity_number(ENEMY_GID);
         }
 
         fn update_enemy_asset(
@@ -578,6 +580,11 @@ mod actions {
             );
         }
 
+        fn entity_count(self: @ContractState, gid: u32) -> EntityCounter {
+            let mut world = self.world_default();
+            let mut entity_counter: EntityCounter = world.read_model(gid);
+            entity_counter
+        }
 
         //     // Defensive phase where player defends against an enemy attack
         fn defensive_phase(ref self: ContractState) {
@@ -696,7 +703,7 @@ mod actions {
                 variable_to_update - value_to_subtract
             }
         }
-        fn set_default_position(self: @ContractState, player: ContractAddress, skin_id: u8) {
+        fn set_default_position(ref self: ContractState, player: ContractAddress, skin_id: u8) {
             let mut world = self.world_default();
             let playable_characters: PlayableCharacterList = world.read_model(0_u8);
             let enemies: EnemiesList = world.read_model(0);
@@ -755,14 +762,21 @@ mod actions {
             return (outcome, random_number);
         }
 
-        fn increment_entity_number(self: @ContractState, entity_id: u32) {
+        fn increment_entity_number(ref self: ContractState, entity_id: u32) {
             let mut world = self.world_default();
-            let mut entity: super::EntityCounter = world.read_model(entity_id);
-            entity.count = entity.count + 1;
-            world.write_model(@entity);
+            let mut entity: EntityCounter = world.read_model(entity_id);
+
+            if entity.count == 0 {
+                let new_entitty = EntityCounter { gid: entity_id, count: 1 };
+                world.write_model(@new_entitty);
+            } else {
+                let entity_count = entity.count;
+                entity.count = entity_count + 1;
+                world.write_model(@entity);
+            }
         }
 
-        fn decrease_entity_number(self: @ContractState, entity_id: u32) {
+        fn decrease_entity_number(ref self: ContractState, entity_id: u32) {
             let mut world = self.world_default();
             let mut entity: super::EntityCounter = world.read_model(entity_id);
             if entity.count > 0 {

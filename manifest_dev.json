@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x4b767fda48530353c2e44e4b9433f4d75c6c9974aaff43ecc00de9455eb71b8",
-    "address": "0x51a537116f0eaf66fc77f2bc3a79e9b920cef205be3a0e9599adef1c43e0607",
-    "seed": "lutte-arce",
+    "address": "0x30747f26d89675a5229f3f1746789c2412b998bdf8c29ea7850a1e072ada5",
+    "seed": "lutte-arcade-e",
     "name": "lutte",
     "entrypoints": [
       "uuid",
@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x4ad8592697f244017849e1582c5a89079dd4ec5e93ff16ff89b37d89985c96e",
-      "class_hash": "0x3619158a92b5df31da78cf043fef526e6d6fbc7fc7746ccfa11053c3b053b5d",
+      "address": "0x6e6ab1f46f2a5d51c95da803e31248b459a058d92b6231b71684013788fe1c7",
+      "class_hash": "0xeac7ed579dc8082d14e5b5504de20cf45873701867db8d24aed2424d083476",
       "abi": [
         {
           "type": "impl",
@@ -1329,12 +1329,12 @@
           "name": "lutte::models::player::PlayableCharacter",
           "members": [
             {
-              "name": "gid",
+              "name": "uid",
               "type": "core::integer::u32"
             },
             {
-              "name": "uid",
-              "type": "core::integer::u8"
+              "name": "gid",
+              "type": "core::integer::u32"
             },
             {
               "name": "skin",
@@ -1378,6 +1378,14 @@
             },
             {
               "name": "folder",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "dash_sprite",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "dodge_sprite",
               "type": "core::byte_array::ByteArray"
             }
           ]
@@ -1387,11 +1395,11 @@
           "name": "lutte::models::player::UEnemy",
           "members": [
             {
-              "name": "gid",
+              "name": "uid",
               "type": "core::integer::u32"
             },
             {
-              "name": "uid",
+              "name": "gid",
               "type": "core::integer::u32"
             },
             {
@@ -1436,6 +1444,14 @@
             },
             {
               "name": "folder",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "dash_sprite",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "dodge_sprite",
               "type": "core::byte_array::ByteArray"
             }
           ]
@@ -1482,6 +1498,20 @@
             },
             {
               "name": "last_attack_state",
+              "type": "core::integer::u32"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "lutte::models::player::EntityCounter",
+          "members": [
+            {
+              "name": "gid",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "count",
               "type": "core::integer::u32"
             }
           ]
@@ -1586,6 +1616,14 @@
                 {
                   "name": "hit_sprite",
                   "type": "core::byte_array::ByteArray"
+                },
+                {
+                  "name": "dash_sprite",
+                  "type": "core::byte_array::ByteArray"
+                },
+                {
+                  "name": "dodge_sprite",
+                  "type": "core::byte_array::ByteArray"
                 }
               ],
               "outputs": [],
@@ -1629,6 +1667,14 @@
                 },
                 {
                   "name": "hit_sprite",
+                  "type": "core::byte_array::ByteArray"
+                },
+                {
+                  "name": "dash_sprite",
+                  "type": "core::byte_array::ByteArray"
+                },
+                {
+                  "name": "dodge_sprite",
                   "type": "core::byte_array::ByteArray"
                 }
               ],
@@ -1725,6 +1771,22 @@
               "inputs": [],
               "outputs": [],
               "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "entity_count",
+              "inputs": [
+                {
+                  "name": "gid",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "lutte::models::player::EntityCounter"
+                }
+              ],
+              "state_mutability": "view"
             }
           ]
         },
@@ -1862,7 +1924,7 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x40c9b1b044af0f698c1f04447527196ff1de15c6498c5d28bca7de1f956e73e",
+      "class_hash": "0x74c4192818e617978342d802ecaf5def62ab67a63b02f5228a390dd70a7a13b",
       "tag": "lutte-EnemiesList",
       "selector": "0x2ccf077fa97585c3dd51d038fa1e6a8deaa77d9ad24c068462035dde4d16be9"
     },
@@ -1874,19 +1936,25 @@
     },
     {
       "members": [],
-      "class_hash": "0x57056de0d82b424d2d0e08a3521747f385667ce46df32653ea5503142806c11",
+      "class_hash": "0x3ba38a0614bedf95b35a210e5017ccac4732c051494832dd6dcac382b58e7b8",
+      "tag": "lutte-EntityCounter",
+      "selector": "0x3b97f651fd07cab1ebd1264e6bd1d5fe9a317d18d96bbd18bb61d19c8392c1"
+    },
+    {
+      "members": [],
+      "class_hash": "0x14551cc08beefddfffe1128fa5b07a80175174d199bbd157a70dd66cb571d3a",
       "tag": "lutte-PlayableCharacter",
       "selector": "0x607aa010522c8eb179f8d1087c94284d7e81f4b8355d9eaae1c7df6418f1236"
     },
     {
       "members": [],
-      "class_hash": "0x7e6a08bfd5a2adb9af644d8ff7a5933fb8a6f04b4b2c982279c47f5a6d38dd3",
+      "class_hash": "0x7bbc48c1efe079352bf2b2d6808fd524191432ba0dc6e5e8d9f9f645380a811",
       "tag": "lutte-PlayableCharacterList",
       "selector": "0x6b018d4d35e74133968fc43665e34613efd5228fb9cfccfd97aefe9cf2599"
     },
     {
       "members": [],
-      "class_hash": "0x1a753d018493e0eefd68dfa92d95a30c59ca47171719449174224f039db229c",
+      "class_hash": "0x4dd38a26a452ba5ac871465207f1e235689105340bfa679fbb25b9ef971e96",
       "tag": "lutte-Player",
       "selector": "0x69d4345925d69b0ebbd11a22b726eedcdf6555dc38890062965eb0c36fc2bfd"
     },
@@ -1904,7 +1972,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x5dd186f9944d5483dc13637759d4e4ab3f1c909dba1c503deb87c9f6ef87e92",
+      "class_hash": "0x7c7367289ffa40a19408e11d1a660872fead5e066abfcb9a310e923c4a7abcf",
       "tag": "lutte-UEnemy",
       "selector": "0x168812fcd27d47bc45817d5f93c224d784a0cb13831b3d1b1256722c6d13994"
     }

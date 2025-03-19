@@ -91,11 +91,11 @@ pub struct UEnemy {
     pub dodge_sprite: ByteArray,
 }
 
-#[derive(Clone, Drop, Serde)]
+#[derive(Copy, Drop, Serde)]
 #[dojo::model]
 pub struct EntityCounter {
     #[key]
-    pub gid: u32, // 0 for players, 1 for enemies
+    pub gid: u32, // 1 for players, 2 for enemies
     pub count: u32,
 }
 
