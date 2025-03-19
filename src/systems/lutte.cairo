@@ -18,7 +18,7 @@ trait IBattleActions<T> {
     ); // color red - 0, green - 1, blue - 2, ...anything else throws an error
     fn fetch_playable_characters(self: @T) -> Array::<PlayableCharacter>;
     fn fetch_enemies(self: @T) -> Array::<UEnemy>;
-    fn defensive_phase(ref self: T);
+    fn defensive_phase(ref self: T, color: u8);
     fn get_user(self: @T, player: ContractAddress) -> Player;
     fn create_character(
         ref self: T,
@@ -129,6 +129,15 @@ mod actions {
         died: bool,
     }
 
+    pub fn is_within_range(a: u32, b: u32, range: u32) -> bool {
+        let diff = if a > b {
+            a - b
+        } else {
+            b - a
+        };
+        return diff <= range;
+    }
+
 
     pub fn get_random_value(walletAddress: ContractAddress) -> u8 {
         let _block_number = get_block_number();
@@ -177,6 +186,7 @@ mod actions {
             // Construct list of keys (assuming uid is incremental)
             let mut enemy_keys: Array::<u32> = ArrayTrait::new();
             let mut i = 0;
+
             while i < enemy_count {
                 enemy_keys.append(i + 1);
                 i += 1;
@@ -352,7 +362,7 @@ mod actions {
             let mut enemy_keys: Array::<u32> = ArrayTrait::new();
             let mut i = 0;
             while i < enemy_count {
-                enemy_keys.append(i);
+                enemy_keys.append(i + 1);
                 i += 1;
             };
 
@@ -587,30 +597,42 @@ mod actions {
         }
 
         //     // Defensive phase where player defends against an enemy attack
-        fn defensive_phase(ref self: ContractState) {
+        fn defensive_phase(ref self: ContractState, color: u8) {
             let mut world = self.world_default();
             let user_address = get_caller_address();
             let mut player_data: Player = world.read_model(user_address);
 
-            let mut defense_probabilities_red_blue = ArrayTrait::new();
+            let mut user_color: felt252 = Default::default();
 
-            defense_probabilities_red_blue.append((50, 1)); // 50% chance for a block
-            defense_probabilities_red_blue.append((30, 2)); // 30% chance for a glazed hit
-            defense_probabilities_red_blue.append((20, 3)); // 20% chance for a complete hit
+            if color == 0 {
+                user_color = 'red';
+            } else if color == 1 {
+                user_color = 'green';
+            } else if color == 2 {
+                user_color = 'blue';
+            } else {
+                panic!("Invalid color");
+            }
 
-            let mut defense_probabilities_red_green = ArrayTrait::new();
+            // let mut defense_probabilities_red_blue = ArrayTrait::new();
 
-            defense_probabilities_red_green.append((20, 1));
-            defense_probabilities_red_green.append((30, 2));
-            defense_probabilities_red_green.append((50, 3));
+            // defense_probabilities_red_blue.append((50, 1)); // 50% chance for a block
+            // defense_probabilities_red_blue.append((30, 2)); // 30% chance for a glazed hit
+            // defense_probabilities_red_blue.append((20, 3)); // 20% chance for a complete hit
 
-            let mut defense_probabilities_red_red = ArrayTrait::new();
+            // let mut defense_probabilities_red_green = ArrayTrait::new();
 
-            defense_probabilities_red_red.append((33, 1)); // 33% chance for a block
-            defense_probabilities_red_red.append((33, 2)); // 33% chance for a glazed hit
-            defense_probabilities_red_red.append((33, 3)); // 33% chance for a complete hit
+            // defense_probabilities_red_green.append((20, 1));
+            // defense_probabilities_red_green.append((30, 2));
+            // defense_probabilities_red_green.append((50, 3));
 
-            let mut probabilities: Array<(u32, felt252)> = ArrayTrait::new();
+            // let mut defense_probabilities_red_red = ArrayTrait::new();
+
+            // defense_probabilities_red_red.append((33, 1)); // 33% chance for a block
+            // defense_probabilities_red_red.append((33, 2)); // 33% chance for a glazed hit
+            // defense_probabilities_red_red.append((33, 3)); // 33% chance for a complete hit
+
+            // let mut probabilities: Array<(u32, felt252)> = ArrayTrait::new();
 
             let mut enemy_color: Array<felt252> = ArrayTrait::new();
             enemy_color.append('red');
@@ -627,61 +649,70 @@ mod actions {
             ); // imitating javascript's Math.random() * 100 for 3 range
 
             let mut result = dice.roll();
-            result = result - 1;
-            if result < 0 {
-                result = 0
-            }
+            result = result
+                - 1; // to work with indexes since it can never return a 0 value from dice.roll
+
             if result > 2 {
                 result = 2
-            }
+            } // this condition may never happen anyways .. since i'm subractiong 1 from index initially
 
             let random_index: u32 = result.try_into().unwrap();
 
-            if enemy_color[random_index] == enemy_color[1] {
-                probabilities = defense_probabilities_red_green;
-            } else if enemy_color[random_index] == enemy_color[0] {
-                probabilities = defense_probabilities_red_red;
+            if enemy_color[random_index].clone() == user_color {
+                // no damage
+                player_data.health = self.safe_math_to_zero(player_data.health, 5)
+            } else if is_within_range(random_index, color.into(), 2) {
+                // mild damage
+                player_data.health = self.safe_math_to_zero(player_data.health, 20)
             } else {
-                probabilities = defense_probabilities_red_blue;
+                // heavy damage
+                player_data.health = self.safe_math_to_zero(player_data.health, 30)
             }
 
-            let (outcome, _get_userrandom): (felt252, u32) = self
-                .get_outcome(probabilities, user_address);
+            // if enemy_color[random_index] == enemy_color[1] {
+            //     probabilities = defense_probabilities_red_green;
+            // } else if enemy_color[random_index] == enemy_color[0] {
+            //     probabilities = defense_probabilities_red_red;
+            // } else {
+            //     probabilities = defense_probabilities_red_blue;
+            // }
 
-            // Simulate an attack, adjust demeanor, and apply damage
-            let mut _user_enemy: UEnemy = player_data.current_enemy;
+            // let (outcome, _get_userrandom): (felt252, u32) = self
+            //     .get_outcome(probabilities, user_address);
+
+            // // Simulate an attack, adjust demeanor, and apply damage
+            // let mut _user_enemy: UEnemy = player_data.current_enemy;
 
             // Apply changes based on the outcome
-            if outcome == 1 {
-                // Successful Attack
-                // player_data.health -= 20; // Standard damage
-                player_data.health = self.safe_math_to_zero(player_data.health, 20)
-                // player_data.demeanor -= 2;
-            // player_data
-            //     .demeanor = self
-            //     .safe_math_to_zero(player_data.demeanor, 2)
-            //     .try_into()
-            //     .unwrap();
-            } else if outcome == 2 {
-                // Glazed Attack
-                // player_data.health -= 5;
-                player_data.health = self.safe_math_to_zero(player_data.health, 5)
-            } else if outcome == 3 {
-                // Critical Attack
-                // player_data.health -= 30;
-                player_data.health = self.safe_math_to_zero(player_data.health, 30)
-                // player_data.demeanor -= 2;
-            // player_data
-            //     .demeanor = self
-            //     .safe_math_to_zero(player_data.demeanor, 2)
-            //     .try_into()
-            //     .unwrap();
-            } else { // Default case, should not occur
-            }
+            // if outcome == 1 {
+            //     // Successful Attack
+            //     // player_data.health -= 20; // Standard damage
+            //     player_data.health = self.safe_math_to_zero(player_data.health, 20)
+            //     // player_data.demeanor -= 2;
+            // // player_data
+            // //     .demeanor = self
+            // //     .safe_math_to_zero(player_data.demeanor, 2)
+            // //     .try_into()
+            // //     .unwrap();
+            // } else if outcome == 2 {
+            //     // Glazed Attack
+            //     // player_data.health -= 5;
+            //     player_data.health = self.safe_math_to_zero(player_data.health, 5)
+            // } else if outcome == 3 {
+            //     // Critical Attack
+            //     // player_data.health -= 30;
+            //     player_data.health = self.safe_math_to_zero(player_data.health, 30)
+            //     // player_data.demeanor -= 2;
+            // // player_data
+            // //     .demeanor = self
+            // //     .safe_math_to_zero(player_data.demeanor, 2)
+            // //     .try_into()
+            // //     .unwrap();
+            // } else { // Default case, should not occur
+            // }
 
             // Ensure demeanor does not exceed maximum
-            if player_data.health <= 0 {
-                player_data.health = 0;
+            if player_data.health == 0 {
                 let e = GameEvent { id: user_address, won: false, died: true };
                 world.emit_event(@e);
             }
