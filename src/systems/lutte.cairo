@@ -178,7 +178,7 @@ mod actions {
             let mut enemy_keys: Array::<u32> = ArrayTrait::new();
             let mut i = 0;
             while i < enemy_count {
-                enemy_keys.append(i);
+                enemy_keys.append(i + 1);
                 i += 1;
             };
 
@@ -197,7 +197,7 @@ mod actions {
             let mut i = 0;
 
             while i < player_count {
-                player_keys.append(i);
+                player_keys.append(i + 1);
                 i += 1;
             };
 
