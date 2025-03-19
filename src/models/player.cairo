@@ -49,9 +49,12 @@ pub struct PlayableCharacterList {
     pub players: Array<PlayableCharacter>,
 }
 
-#[derive(Clone, Drop, Serde, Introspect)]
+#[derive(Clone, Drop, Serde)]
+#[dojo::model]
 pub struct PlayableCharacter {
-    pub uid: u8,
+    #[key]
+    pub uid: u32,
+    pub gid: u32,
     pub skin: ByteArray,
     pub health: u32,
     pub attack_power: u8,
@@ -63,11 +66,16 @@ pub struct PlayableCharacter {
     pub mugshot: ByteArray,
     pub hit_sprite: ByteArray,
     pub folder: ByteArray,
+    pub dash_sprite: ByteArray,
+    pub dodge_sprite: ByteArray,
 }
 
-#[derive(Clone, Drop, Serde, Introspect)]
+#[derive(Clone, Drop, Serde)]
+#[dojo::model]
 pub struct UEnemy {
+    #[key]
     pub uid: u32,
+    pub gid: u32,
     pub health: u32,
     pub max_health: u32,
     pub attack_power: u8,
@@ -79,6 +87,16 @@ pub struct UEnemy {
     pub mugshot: ByteArray,
     pub hit_sprite: ByteArray,
     pub folder: ByteArray,
+    pub dash_sprite: ByteArray,
+    pub dodge_sprite: ByteArray,
+}
+
+#[derive(Clone, Drop, Serde)]
+#[dojo::model]
+pub struct EntityCounter {
+    #[key]
+    pub gid: u32, // 0 for players, 1 for enemies
+    pub count: u32,
 }
 
 

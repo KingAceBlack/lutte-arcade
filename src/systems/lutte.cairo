@@ -1,7 +1,7 @@
 use starknet::{ContractAddress, get_caller_address, get_block_number, get_block_timestamp};
 use lutte::models::{
     player::Player, player::Enemy, player::UEnemy, player::EnemiesList, player::PlayableCharacter,
-    player::PlayableCharacterList,
+    player::PlayableCharacterList, player::EntityCounter,
 };
 use starknet::storage::{
     StoragePointerReadAccess, StoragePointerWriteAccess, Vec, VecTrait, MutableVecTrait,
@@ -16,32 +16,10 @@ trait IBattleActions<T> {
     fn offensive_phase(
         ref self: T, color: u8,
     ); // color red - 0, green - 1, blue - 2, ...anything else throws an error
-    fn fetch_playable_characters(self: @T) -> Array<PlayableCharacter>;
-    fn fetch_enemies(self: @T) -> Array<UEnemy>;
+    fn fetch_playable_characters(self: @T) -> Array::<PlayableCharacter>;
+    fn fetch_enemies(self: @T) -> Array::<UEnemy>;
     fn defensive_phase(ref self: T);
     fn get_user(self: @T, player: ContractAddress) -> Player;
-    fn create_first_enemy(
-        ref self: T,
-        skin: ByteArray,
-        health: u32,
-        attack_power: u8,
-        folder: ByteArray,
-        idle_sprite: ByteArray,
-        attack_sprite: ByteArray,
-        mugshot: ByteArray,
-        hit_sprite: ByteArray,
-    );
-    fn create_first_character(
-        ref self: T,
-        skin: ByteArray,
-        health: u32,
-        attack_power: u8,
-        folder: ByteArray,
-        idle_sprite: ByteArray,
-        attack_sprite: ByteArray,
-        mugshot: ByteArray,
-        hit_sprite: ByteArray,
-    );
     fn create_character(
         ref self: T,
         skin: ByteArray,
@@ -53,6 +31,8 @@ trait IBattleActions<T> {
         attack_sprite: ByteArray,
         mugshot: ByteArray,
         hit_sprite: ByteArray,
+        dash_sprite: ByteArray,
+        dodge_sprite: ByteArray,
     );
     fn create_enemy(
         ref self: T,
@@ -60,6 +40,41 @@ trait IBattleActions<T> {
         health: u32,
         attack_power: u8,
         level: u8,
+        folder: ByteArray,
+        idle_sprite: ByteArray,
+        attack_sprite: ByteArray,
+        mugshot: ByteArray,
+        hit_sprite: ByteArray,
+        dash_sprite: ByteArray,
+        dodge_sprite: ByteArray,
+    );
+    // fn update_character(
+    //     ref self: T,
+    //     skin: ByteArray,
+    //     health: u32,
+    //     attack_power: u8,
+    //     level: u8,
+    //     folder: ByteArray,
+    //     idle_sprite: ByteArray,
+    //     attack_sprite: ByteArray,
+    //     mugshot: ByteArray,
+    //     hit_sprite: ByteArray,
+    //     uid: u32,
+    // );
+    fn update_enemy_asset(
+        ref self: T,
+        id: u32,
+        skin: ByteArray,
+        folder: ByteArray,
+        idle_sprite: ByteArray,
+        attack_sprite: ByteArray,
+        mugshot: ByteArray,
+        hit_sprite: ByteArray,
+    );
+    fn update_player_asset(
+        ref self: T,
+        id: u32,
+        skin: ByteArray,
         folder: ByteArray,
         idle_sprite: ByteArray,
         attack_sprite: ByteArray,
@@ -89,7 +104,9 @@ mod actions {
     use dojo::model::{ModelStorage, ModelValueStorage};
     use super::{IBattleActions};
     use super::{ContractAddress, get_caller_address};
-    use super::{Player, Enemy, UEnemy, EnemiesList, PlayableCharacter, PlayableCharacterList};
+    use super::{
+        Player, Enemy, UEnemy, EnemiesList, PlayableCharacter, PlayableCharacterList, EntityCounter,
+    };
     use super::{get_block_number, get_block_timestamp, Dice, DiceTrait};
     use super::{Vec, VecTrait};
     use super::{depressed, neutral, motivated};
@@ -139,6 +156,9 @@ mod actions {
         return converted_final_result;
     }
 
+    const ENEMY_GID: u32 = 1;
+    const PLAYER_GID: u32 = 0;
+
 
     #[abi(embed_v0)]
     impl BattleImpl of super::IBattleActions<ContractState> {
@@ -147,93 +167,41 @@ mod actions {
             self.set_default_position(player, skin);
         }
 
-        fn fetch_enemies(self: @ContractState) -> Array<UEnemy> {
+        fn fetch_enemies(self: @ContractState) -> Array::<UEnemy> {
             let mut world = self.world_default();
-            let id = 0_u8;
 
-            let mut enemies_list: EnemiesList = world.read_model(id);
-            return enemies_list.enemies;
-        }
+            let enemy_counter: EntityCounter = world.read_model(ENEMY_GID);
+            let enemy_count = enemy_counter.count;
 
-        fn fetch_playable_characters(self: @ContractState) -> Array<PlayableCharacter> {
-            let mut world = self.world_default();
-            let id = 0_u8;
-
-            let mut playable_charactr_list: PlayableCharacterList = world.read_model(id);
-            return playable_charactr_list.players;
-        }
-
-        fn create_first_enemy(
-            ref self: ContractState,
-            skin: ByteArray,
-            health: u32,
-            attack_power: u8,
-            folder: ByteArray,
-            idle_sprite: ByteArray,
-            attack_sprite: ByteArray,
-            mugshot: ByteArray,
-            hit_sprite: ByteArray,
-        ) {
-            let mut world = self.world_default();
-            let mut uid = 0;
-            let enemies: EnemiesList = world.read_model(0);
-
-            assert(self.is_owner(), 'unauthorised');
-            assert(enemies.enemies.len() < 1, 'not first enemy');
-
-            let new_enemy = UEnemy {
-                uid,
-                health,
-                attack_power,
-                level: 0_u8,
-                special_attack: true,
-                skin,
-                max_health: health,
-                idle_sprite,
-                attack_sprite,
-                mugshot,
-                hit_sprite,
-                folder,
-            };
-            let first_enemy = EnemiesList { id: 0_u8, enemies: array![new_enemy] };
-            world.write_model(@first_enemy);
-        }
-
-        fn create_first_character(
-            ref self: ContractState,
-            skin: ByteArray,
-            health: u32,
-            attack_power: u8,
-            folder: ByteArray,
-            idle_sprite: ByteArray,
-            attack_sprite: ByteArray,
-            mugshot: ByteArray,
-            hit_sprite: ByteArray,
-        ) {
-            let mut world = self.world_default();
-            let mut uid = 0_u8;
-            let playable_characters: PlayableCharacterList = world.read_model(0);
-
-            assert(self.is_owner(), 'unauthorised');
-            assert(playable_characters.players.len() < 1, 'not first character');
-
-            let new_character = PlayableCharacter {
-                uid,
-                health,
-                attack_power,
-                level: 0_u8,
-                special_attack: true,
-                skin,
-                max_health: health,
-                idle_sprite,
-                attack_sprite,
-                mugshot,
-                hit_sprite,
-                folder,
+            // Construct list of keys (assuming uid is incremental)
+            let mut enemy_keys: Array::<u32> = ArrayTrait::new();
+            let mut i = 0;
+            while i < enemy_count {
+                enemy_keys.append(i);
+                i += 1;
             };
 
-            let first_character = PlayableCharacterList { id: uid, players: array![new_character] };
-            world.write_model(@first_character);
+            let mut enemies_list: Array::<UEnemy> = world.read_models(enemy_keys.span());
+            return enemies_list;
+        }
+
+        fn fetch_playable_characters(self: @ContractState) -> Array::<PlayableCharacter> {
+            let mut world = self.world_default();
+
+            let player_counter: EntityCounter = world.read_model(PLAYER_GID);
+            let player_count = player_counter.count;
+
+            // Construct list of keys (assuming uid is incremental)
+            let mut player_keys: Array::<u32> = ArrayTrait::new();
+            let mut i = 0;
+            while i < player_count {
+                player_keys.append(i);
+                i += 1;
+            };
+
+            let mut players_list: Array::<PlayableCharacter> = world
+                .read_models(player_keys.span());
+            return players_list;
         }
 
         fn create_character(
@@ -247,34 +215,59 @@ mod actions {
             attack_sprite: ByteArray,
             mugshot: ByteArray,
             hit_sprite: ByteArray,
+            dash_sprite: ByteArray,
+            dodge_sprite: ByteArray,
         ) {
             let mut world = self.world_default();
 
-            let mut world_characters: PlayableCharacterList = world.read_model(0_u8);
-            let mut current_characters: Array::<PlayableCharacter> = world_characters.players;
+            let player_counter: EntityCounter = world.read_model(PLAYER_GID);
+            let player_count = player_counter.count;
 
-            current_characters
-                .append(
-                    PlayableCharacter {
-                        uid: (current_characters.len()).try_into().unwrap(),
-                        skin,
-                        health,
-                        attack_power,
-                        level,
-                        special_attack: true,
-                        max_health: health,
-                        idle_sprite,
-                        attack_sprite,
-                        mugshot,
-                        hit_sprite,
-                        folder,
-                    },
-                );
+            if player_count == 0 {
+                let mut new_character = PlayableCharacter {
+                    uid: 1,
+                    gid: PLAYER_GID,
+                    skin,
+                    health,
+                    attack_power,
+                    level,
+                    special_attack: true,
+                    max_health: health,
+                    idle_sprite,
+                    attack_sprite,
+                    mugshot,
+                    hit_sprite,
+                    folder,
+                    dash_sprite,
+                    dodge_sprite,
+                };
 
-            world_characters = PlayableCharacterList { id: 0, players: current_characters };
+                world.write_model(@new_character);
+                return;
+            }
 
-            world.write_model(@world_characters);
+            let mut new_character = PlayableCharacter {
+                uid: (player_count + 1).try_into().unwrap(),
+                gid: PLAYER_GID,
+                skin,
+                health,
+                attack_power,
+                level,
+                special_attack: true,
+                max_health: health,
+                idle_sprite,
+                attack_sprite,
+                mugshot,
+                hit_sprite,
+                folder,
+                dash_sprite,
+                dodge_sprite,
+            };
+
+            world.write_model(@new_character);
         }
+
+
         fn create_enemy(
             ref self: ContractState,
             skin: ByteArray,
@@ -286,34 +279,176 @@ mod actions {
             attack_sprite: ByteArray,
             mugshot: ByteArray,
             hit_sprite: ByteArray,
+            dash_sprite: ByteArray,
+            dodge_sprite: ByteArray,
         ) {
             let mut world = self.world_default();
 
-            let mut world_enemies: EnemiesList = world.read_model(0_u8);
-            let mut current_enemies: Array::<UEnemy> = world_enemies.enemies;
+            let enemy_counter: EntityCounter = world.read_model(ENEMY_GID);
+            let enemy_count = enemy_counter.count;
 
-            current_enemies
-                .append(
-                    UEnemy {
-                        uid: (current_enemies.len() + 1).try_into().unwrap(),
-                        health,
-                        attack_power,
-                        level,
-                        special_attack: true,
-                        max_health: health,
-                        skin,
-                        idle_sprite,
-                        attack_sprite,
-                        mugshot,
-                        hit_sprite,
-                        folder,
-                    },
-                );
+            if enemy_count == 0 {
+                let mut new_enemy = UEnemy {
+                    uid: 1,
+                    gid: ENEMY_GID,
+                    health,
+                    attack_power,
+                    level,
+                    special_attack: true,
+                    max_health: health,
+                    skin,
+                    idle_sprite,
+                    attack_sprite,
+                    mugshot,
+                    hit_sprite,
+                    folder,
+                    dash_sprite,
+                    dodge_sprite,
+                };
 
-            world_enemies = EnemiesList { id: 0, enemies: current_enemies };
+                world.write_model(@new_enemy);
+                return;
+            }
 
-            world.write_model(@world_enemies);
+            let mut new_enemy = UEnemy {
+                uid: (enemy_count + 1).try_into().unwrap(),
+                gid: ENEMY_GID,
+                health,
+                attack_power,
+                level,
+                special_attack: true,
+                max_health: health,
+                skin,
+                idle_sprite,
+                attack_sprite,
+                mugshot,
+                hit_sprite,
+                folder,
+                dash_sprite,
+                dodge_sprite,
+            };
+
+            world.write_model(@new_enemy);
         }
+
+        fn update_enemy_asset(
+            ref self: ContractState,
+            id: u32,
+            skin: ByteArray,
+            folder: ByteArray,
+            idle_sprite: ByteArray,
+            attack_sprite: ByteArray,
+            mugshot: ByteArray,
+            hit_sprite: ByteArray,
+        ) {
+            let mut world = self.world_default();
+
+            let enemy_counter: EntityCounter = world.read_model(ENEMY_GID);
+            let enemy_count = enemy_counter.count;
+
+            // Create array of keys to fetch all enemies
+            let mut enemy_keys: Array::<u32> = ArrayTrait::new();
+            let mut i = 0;
+            while i < enemy_count {
+                enemy_keys.append(i);
+                i += 1;
+            };
+
+            // Fetch all enemies
+            let mut enemies_list: Array::<UEnemy> = world.read_models(enemy_keys.span());
+
+            // Find the enemy by `id`
+            let mut enemy_found: Option::<UEnemy> = Option::None;
+
+            for enemy in enemies_list.clone() {
+                if enemy.uid == id {
+                    enemy_found = Option::Some(enemy);
+                    break;
+                }
+            };
+
+            match enemy_found {
+                Option::Some(x) => { // Update the enemy's assets
+                    enemy_found =
+                        Option::Some(
+                            UEnemy {
+                                uid: id,
+                                folder,
+                                idle_sprite,
+                                attack_sprite,
+                                mugshot,
+                                hit_sprite,
+                                ..x,
+                            },
+                        );
+                },
+                Option::None => { panic!("enemy not found"); },
+            };
+
+            world.write_model(@enemy_found.unwrap());
+        }
+
+        fn update_player_asset(
+            ref self: ContractState,
+            id: u32,
+            skin: ByteArray,
+            folder: ByteArray,
+            idle_sprite: ByteArray,
+            attack_sprite: ByteArray,
+            mugshot: ByteArray,
+            hit_sprite: ByteArray,
+        ) {
+            let mut world = self.world_default();
+
+            // Fetch player count from the counter model
+            let player_counter: EntityCounter = world.read_model(PLAYER_GID);
+            let player_count = player_counter.count;
+
+            // Create an array of keys to fetch all players
+            let mut player_keys: Array::<u32> = ArrayTrait::new();
+            let mut i = 0;
+            while i < player_count {
+                player_keys.append(i);
+                i += 1;
+            };
+
+            // Fetch all players
+            let mut players_list: Array::<PlayableCharacter> = world
+                .read_models(player_keys.span());
+
+            // Find the player by `id`
+            let mut player_found: Option::<PlayableCharacter> = Option::None;
+
+            for player in players_list.clone() {
+                if player.uid == id {
+                    player_found = Option::Some(player);
+                    break;
+                }
+            };
+
+            // Ensure the player exists
+            match player_found {
+                Option::Some(x) => { // Update the player's assets
+                    player_found =
+                        Option::Some(
+                            PlayableCharacter {
+                                uid: id,
+                                skin,
+                                folder,
+                                idle_sprite,
+                                attack_sprite,
+                                mugshot,
+                                hit_sprite,
+                                ..x,
+                            },
+                        );
+                },
+                Option::None => { panic!("player not found"); },
+            };
+
+            world.write_model(@player_found.unwrap());
+        }
+
 
         //     // Offensive phase where player attacks
         fn offensive_phase(ref self: ContractState, color: u8) {
@@ -359,8 +494,6 @@ mod actions {
 
             // Simulate an attack, adjust demeanor, and apply damage
             let mut user_enemy: UEnemy = player_data.current_enemy.clone();
-
-            // TODO fix underflow in health and enemy health... set to zero
 
             // last attack state can be 0, 1, 2, 3, 4 -- 1- successful attack, 2- glazed attack, 3-
             // missed attack, 4- critical attack, 0- not yet attacked
@@ -620,6 +753,25 @@ mod actions {
             };
 
             return (outcome, random_number);
+        }
+
+        fn increment_entity_number(self: @ContractState, entity_id: u32) {
+            let mut world = self.world_default();
+            let mut entity: super::EntityCounter = world.read_model(entity_id);
+            entity.count = entity.count + 1;
+            world.write_model(@entity);
+        }
+
+        fn decrease_entity_number(self: @ContractState, entity_id: u32) {
+            let mut world = self.world_default();
+            let mut entity: super::EntityCounter = world.read_model(entity_id);
+            if entity.count > 0 {
+                entity.count = entity.count - 1;
+            } else {
+                entity.count = 0;
+            }
+
+            world.write_model(@entity);
         }
 
         /// Use the default namespace "ns". A function is handy since the ByteArray
