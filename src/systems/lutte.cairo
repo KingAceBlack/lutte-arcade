@@ -1,7 +1,7 @@
 use starknet::{ContractAddress, get_caller_address, get_block_number, get_block_timestamp};
 use lutte::models::{
-    player::Player, player::Enemy, player::UEnemy, player::EnemiesList, player::PlayableCharacter,
-    player::PlayableCharacterList, player::EntityCounter,
+    player::Player, player::Enemy, player::UEnemy, player::PlayableCharacter, player::EntityCounter,
+    player::SelectedCharacter, player::SelectedEnemy,
 };
 use starknet::storage::{
     StoragePointerReadAccess, StoragePointerWriteAccess, Vec, VecTrait, MutableVecTrait,
@@ -106,7 +106,7 @@ mod actions {
     use super::{IBattleActions};
     use super::{ContractAddress, get_caller_address};
     use super::{
-        Player, Enemy, UEnemy, EnemiesList, PlayableCharacter, PlayableCharacterList, EntityCounter,
+        Player, Enemy, UEnemy, PlayableCharacter, EntityCounter, SelectedCharacter, SelectedEnemy,
     };
     use super::{get_block_number, get_block_timestamp, Dice, DiceTrait};
     use super::{Vec, VecTrait};
@@ -468,8 +468,9 @@ mod actions {
             let user_address = get_caller_address();
             let mut player_data: Player = world.read_model(user_address);
 
-            let playable_characters: PlayableCharacterList = world.read_model(0);
-            let storage_user_character = playable_characters.players.at(player_data.skin_id.into());
+            let playable_characters: PlayableCharacter = world
+                .read_model(player_data.character.uid);
+            let storage_user_character = playable_characters.clone();
 
             assert(color >= 0 && color <= 2, 'Invalid color');
             assert(player_data.last_attack == false, 'out of turn');
@@ -505,7 +506,7 @@ mod actions {
             let (outcome, _random): (felt252, u32) = self.get_outcome(probabilities, user_address);
 
             // Simulate an attack, adjust demeanor, and apply damage
-            let mut user_enemy: UEnemy = player_data.current_enemy.clone();
+            let mut user_enemy: SelectedEnemy = player_data.current_enemy.clone();
 
             // last attack state can be 0, 1, 2, 3, 4 -- 1- successful attack, 2- glazed attack, 3-
             // missed attack, 4- critical attack, 0- not yet attacked
@@ -557,8 +558,8 @@ mod actions {
             }
 
             // ensure user health doesnt exceed max healh
-            if player_data.health >= *storage_user_character.max_health {
-                player_data.health = *storage_user_character.max_health
+            if player_data.health >= storage_user_character.max_health {
+                player_data.health = storage_user_character.max_health
             }
 
             // Ensure demeanor does not exceed maximum
@@ -736,38 +737,64 @@ mod actions {
         }
         fn set_default_position(ref self: ContractState, player: ContractAddress, skin_id: u8) {
             let mut world = self.world_default();
-            let playable_characters: PlayableCharacterList = world.read_model(0_u8);
-            let enemies: EnemiesList = world.read_model(0);
-            let index: u32 = skin_id.into();
+            let playable_character: PlayableCharacter = world.read_model(skin_id);
+            let enemy: UEnemy = world.read_model(1);
 
-            match playable_characters.players.get(index) {
-                Option::Some(x) => { x.unbox() },
-                Option::None => { panic!("player doesnt exist") },
-            }
+            // let _ignored_player_fetch: Player = world.read_model(player);
 
-            assert(playable_characters.players.len() > 0, 'empty players');
-            assert(enemies.enemies.len() > 0, 'empty enemies');
+            assert!(playable_character.health != 0, "player doesnt exist");
+            assert!(enemy.health != 0, "enemy doesnt exist");
 
-            // assert(playable_characters.players.get(index), 'empty players');
+            let parsed_character = SelectedCharacter {
+                uid: playable_character.uid,
+                gid: playable_character.gid,
+                skin: playable_character.skin.clone(),
+                health: playable_character.health,
+                attack_power: playable_character.attack_power,
+                special_attack: playable_character.special_attack,
+                level: playable_character.level,
+                max_health: playable_character.max_health,
+                idle_sprite: playable_character.idle_sprite.clone(),
+                attack_sprite: playable_character.attack_sprite.clone(),
+                mugshot: playable_character.mugshot.clone(),
+                hit_sprite: playable_character.hit_sprite.clone(),
+                folder: playable_character.folder.clone(),
+                dash_sprite: playable_character.dash_sprite.clone(),
+                dodge_sprite: playable_character.dodge_sprite.clone(),
+            };
 
-            let user_character = playable_characters.players.at(index);
-            let first_enemy = enemies.enemies.at(0).clone();
+            let parsed_enemy = SelectedEnemy {
+                uid: enemy.uid,
+                gid: enemy.gid,
+                health: enemy.health,
+                max_health: enemy.max_health,
+                attack_power: enemy.attack_power,
+                special_attack: enemy.special_attack,
+                level: enemy.level,
+                skin: enemy.skin.clone(),
+                idle_sprite: enemy.idle_sprite.clone(),
+                attack_sprite: enemy.attack_sprite.clone(),
+                mugshot: enemy.mugshot.clone(),
+                hit_sprite: enemy.hit_sprite.clone(),
+                folder: enemy.folder.clone(),
+                dash_sprite: enemy.dash_sprite.clone(),
+                dodge_sprite: enemy.dodge_sprite.clone(),
+            };
 
-            world
-                .write_model(
-                    @Player {
-                        address: player,
-                        health: *user_character.health,
-                        special_attack: false,
-                        attack_power: *user_character.attack_power,
-                        demeanor: 10,
-                        skin_id,
-                        last_attack_state: 0,
-                        last_attack: false,
-                        current_enemy: first_enemy,
-                        character: user_character.clone(),
-                    },
-                );
+            let player = Player {
+                address: player,
+                health: playable_character.health,
+                special_attack: false,
+                attack_power: playable_character.attack_power,
+                demeanor: 10,
+                skin_id,
+                last_attack_state: 0,
+                last_attack: false,
+                current_enemy: parsed_enemy,
+                character: parsed_character,
+            };
+
+            world.write_model(@player);
         }
 
         fn get_outcome(

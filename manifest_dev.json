@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x4b767fda48530353c2e44e4b9433f4d75c6c9974aaff43ecc00de9455eb71b8",
-    "address": "0x23220206dce2b7ef687d1785bdf4187f2e0c1eb0d01422ff308850537d48890",
-    "seed": "lutte-arcade-r",
+    "address": "0x92466586a2d9b71ed11e09f2a70babe7784bb09008414d157e2c53d4ef91e4",
+    "seed": "lutte-arcade-y",
     "name": "lutte",
     "entrypoints": [
       "uuid",
@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x4cce385d0c447ae020d60771f3e27968cd927def8c30486d6a70d66510aec0a",
-      "class_hash": "0x4f8b0236a65056e8e1e0224e41fba15b7636cb83feaccb79c10d456ee257187",
+      "address": "0x3b937ad58e4fc6f2f517a317412c71971a35805d724911436b6625dba6d5743",
+      "class_hash": "0x512142a2fc19cd0913a325be094357062fd2f12f67a879ddb35c31a3e8d095e",
       "abi": [
         {
           "type": "impl",
@@ -1458,6 +1458,138 @@
         },
         {
           "type": "struct",
+          "name": "lutte::models::player::SelectedEnemy",
+          "members": [
+            {
+              "name": "uid",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "gid",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "health",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "max_health",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "attack_power",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "special_attack",
+              "type": "core::bool"
+            },
+            {
+              "name": "level",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "skin",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "idle_sprite",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "attack_sprite",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "mugshot",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "hit_sprite",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "folder",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "dash_sprite",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "dodge_sprite",
+              "type": "core::byte_array::ByteArray"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "lutte::models::player::SelectedCharacter",
+          "members": [
+            {
+              "name": "uid",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "gid",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "skin",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "health",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "attack_power",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "special_attack",
+              "type": "core::bool"
+            },
+            {
+              "name": "level",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "max_health",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "idle_sprite",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "attack_sprite",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "mugshot",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "hit_sprite",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "folder",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "dash_sprite",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "dodge_sprite",
+              "type": "core::byte_array::ByteArray"
+            }
+          ]
+        },
+        {
+          "type": "struct",
           "name": "lutte::models::player::Player",
           "members": [
             {
@@ -1482,7 +1614,7 @@
             },
             {
               "name": "current_enemy",
-              "type": "lutte::models::player::UEnemy"
+              "type": "lutte::models::player::SelectedEnemy"
             },
             {
               "name": "skin_id",
@@ -1494,7 +1626,7 @@
             },
             {
               "name": "character",
-              "type": "lutte::models::player::PlayableCharacter"
+              "type": "lutte::models::player::SelectedCharacter"
             },
             {
               "name": "last_attack_state",
@@ -1557,7 +1689,12 @@
             {
               "type": "function",
               "name": "defensive_phase",
-              "inputs": [],
+              "inputs": [
+                {
+                  "name": "color",
+                  "type": "core::integer::u8"
+                }
+              ],
               "outputs": [],
               "state_mutability": "external"
             },
@@ -1924,12 +2061,6 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x74c4192818e617978342d802ecaf5def62ab67a63b02f5228a390dd70a7a13b",
-      "tag": "lutte-EnemiesList",
-      "selector": "0x2ccf077fa97585c3dd51d038fa1e6a8deaa77d9ad24c068462035dde4d16be9"
-    },
-    {
-      "members": [],
       "class_hash": "0x725edad78ab08acba1ec3810ae2c5f4c22dad2978368e2e3faefe0efd287a35",
       "tag": "lutte-Enemy",
       "selector": "0x5e8455d13393e0a620670348931a6aea86190e702a5955088e8f44851b2e6f6"
@@ -1948,13 +2079,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x7bbc48c1efe079352bf2b2d6808fd524191432ba0dc6e5e8d9f9f645380a811",
-      "tag": "lutte-PlayableCharacterList",
-      "selector": "0x6b018d4d35e74133968fc43665e34613efd5228fb9cfccfd97aefe9cf2599"
-    },
-    {
-      "members": [],
-      "class_hash": "0x4dd38a26a452ba5ac871465207f1e235689105340bfa679fbb25b9ef971e96",
+      "class_hash": "0x7e1e2171d738347ba5afe2222c8120cf0178943010a476494106977852a6e59",
       "tag": "lutte-Player",
       "selector": "0x69d4345925d69b0ebbd11a22b726eedcdf6555dc38890062965eb0c36fc2bfd"
     },

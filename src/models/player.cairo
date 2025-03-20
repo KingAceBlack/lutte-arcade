@@ -10,10 +10,10 @@ pub struct Player {
     pub demeanor: u8,
     pub attack_power: u8,
     pub special_attack: bool,
-    pub current_enemy: UEnemy,
+    pub current_enemy: SelectedEnemy,
     pub skin_id: u8,
     pub last_attack: bool,
-    pub character: PlayableCharacter,
+    pub character: SelectedCharacter,
     pub last_attack_state: u32,
 }
 
@@ -21,6 +21,46 @@ pub struct Player {
 // attack, 4- critical attack, 0- not yet attacked
 
 // skin can be 1, 2, 3 ...etc
+
+#[derive(Clone, Drop, Serde, Introspect)]
+pub struct SelectedCharacter {
+    pub uid: u32,
+    pub gid: u32,
+    pub skin: ByteArray,
+    pub health: u32,
+    pub attack_power: u8,
+    pub special_attack: bool,
+    pub level: u8,
+    pub max_health: u32,
+    pub idle_sprite: ByteArray,
+    pub attack_sprite: ByteArray,
+    pub mugshot: ByteArray,
+    pub hit_sprite: ByteArray,
+    pub folder: ByteArray,
+    pub dash_sprite: ByteArray,
+    pub dodge_sprite: ByteArray,
+}
+
+
+#[derive(Clone, Drop, Serde, Introspect)]
+pub struct SelectedEnemy {
+    pub uid: u32,
+    pub gid: u32,
+    pub health: u32,
+    pub max_health: u32,
+    pub attack_power: u8,
+    pub special_attack: bool,
+    pub level: u8,
+    pub skin: ByteArray,
+    pub idle_sprite: ByteArray,
+    pub attack_sprite: ByteArray,
+    pub mugshot: ByteArray,
+    pub hit_sprite: ByteArray,
+    pub folder: ByteArray,
+    pub dash_sprite: ByteArray,
+    pub dodge_sprite: ByteArray,
+}
+
 
 #[derive(Copy, Drop, Serde)]
 #[dojo::model]
@@ -33,23 +73,8 @@ pub struct Enemy {
     pub level: u8,
 }
 
-#[derive(Drop, Serde)]
-#[dojo::model]
-pub struct EnemiesList {
-    #[key]
-    pub id: u8,
-    pub enemies: Array<UEnemy>,
-}
 
-#[derive(Drop, Serde)]
-#[dojo::model]
-pub struct PlayableCharacterList {
-    #[key]
-    pub id: u8,
-    pub players: Array<PlayableCharacter>,
-}
-
-#[derive(Clone, Drop, Serde)]
+#[derive(Clone, Drop, Serde, Introspect)]
 #[dojo::model]
 pub struct PlayableCharacter {
     #[key]
@@ -70,7 +95,7 @@ pub struct PlayableCharacter {
     pub dodge_sprite: ByteArray,
 }
 
-#[derive(Clone, Drop, Serde)]
+#[derive(Clone, Drop, Serde, Introspect)]
 #[dojo::model]
 pub struct UEnemy {
     #[key]
