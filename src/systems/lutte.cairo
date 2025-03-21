@@ -523,9 +523,9 @@ mod actions {
                 // Glazed Attack
                 player_data.last_attack_state = 2;
                 player_data.demeanor += 1; // Minor boost
-                user_enemy
-                    .health = self
-                    .safe_math_to_zero(user_enemy.health, 5); // Small amount of damage
+                // user_enemy
+            //     .health = self
+            //     .safe_math_to_zero(user_enemy.health, 0); // Small amount of damage
             } else if outcome == 3 { // Missed Attack
                 player_data.last_attack_state = 3;
                 // No demeanor change or health deduction
@@ -659,9 +659,8 @@ mod actions {
 
             let random_index: u32 = result.try_into().unwrap();
 
-            if enemy_color[random_index].clone() == user_color {
-                // no damage
-                player_data.health = self.safe_math_to_zero(player_data.health, 5)
+            if enemy_color[random_index].clone() == user_color { // no damage
+            // player_data.health = self.safe_math_to_zero(player_data.health, 5)
             } else if is_within_range(random_index, color.into(), 2) {
                 // mild damage
                 player_data.health = self.safe_math_to_zero(player_data.health, 20)
