@@ -48,19 +48,6 @@ trait IBattleActions<T> {
         dash_sprite: ByteArray,
         dodge_sprite: ByteArray,
     );
-    // fn update_character(
-    //     ref self: T,
-    //     skin: ByteArray,
-    //     health: u32,
-    //     attack_power: u8,
-    //     level: u8,
-    //     folder: ByteArray,
-    //     idle_sprite: ByteArray,
-    //     attack_sprite: ByteArray,
-    //     mugshot: ByteArray,
-    //     hit_sprite: ByteArray,
-    //     uid: u32,
-    // );
     fn update_enemy_asset(
         ref self: T,
         id: u32,
@@ -70,6 +57,8 @@ trait IBattleActions<T> {
         attack_sprite: ByteArray,
         mugshot: ByteArray,
         hit_sprite: ByteArray,
+        dash_sprite: ByteArray,
+        dodge_sprite: ByteArray,
     );
     fn update_player_asset(
         ref self: T,
@@ -80,10 +69,14 @@ trait IBattleActions<T> {
         attack_sprite: ByteArray,
         mugshot: ByteArray,
         hit_sprite: ByteArray,
+        dash_sprite: ByteArray,
+        dodge_sprite: ByteArray,
     );
     fn spawn(ref self: T, skin: u8);
     fn special_attack(ref self: T);
     fn entity_count(self: @T, gid: u32) -> EntityCounter;
+    fn delete_character(ref self: T, uid: u32);
+    fn delete_enemy(ref self: T, uid: u32);
 }
 
 
@@ -113,12 +106,6 @@ mod actions {
     use super::{depressed, neutral, motivated};
     use super::EventStorage;
 
-
-    // #[derive(Serde, Copy, Drop, Introspect, PartialEq, Debug)]
-    // pub enum EventEnum {
-    //     Died: bool,
-    //     Won: bool,
-    // }
 
     #[derive(Copy, Drop, Serde)]
     #[dojo::event]
@@ -177,6 +164,34 @@ mod actions {
             self.set_default_position(player, skin);
         }
 
+        fn delete_character(ref self: ContractState, uid: u32) {
+            let mut world = self.world_default();
+
+            assert!(self.is_caller_owner(), "unauthorised");
+            let character: PlayableCharacter = world.read_model(uid);
+
+            if character.health == 0 {
+                panic!("character not found");
+            } else {
+                world.erase_model(@character);
+                self.decrease_entity_number(PLAYER_GID);
+            }
+        }
+
+        fn delete_enemy(ref self: ContractState, uid: u32) {
+            let mut world = self.world_default();
+
+            assert!(self.is_caller_owner(), "unauthorised");
+            let enemy: UEnemy = world.read_model(uid);
+
+            if enemy.health == 0 {
+                panic!("character not found");
+            } else {
+                world.erase_model(@enemy);
+                self.decrease_entity_number(ENEMY_GID);
+            }
+        }
+
         fn fetch_enemies(self: @ContractState) -> Array::<UEnemy> {
             let mut world = self.world_default();
 
@@ -231,6 +246,8 @@ mod actions {
             dodge_sprite: ByteArray,
         ) {
             let mut world = self.world_default();
+
+            assert!(self.is_caller_owner(), "unauthorised");
 
             let player_counter: EntityCounter = world.read_model(PLAYER_GID);
             let player_count = player_counter.count;
@@ -295,6 +312,7 @@ mod actions {
             dodge_sprite: ByteArray,
         ) {
             let mut world = self.world_default();
+            assert!(self.is_caller_owner(), "unauthorised");
 
             let enemy_counter: EntityCounter = world.read_model(ENEMY_GID);
             let enemy_count = enemy_counter.count;
@@ -352,8 +370,11 @@ mod actions {
             attack_sprite: ByteArray,
             mugshot: ByteArray,
             hit_sprite: ByteArray,
+            dash_sprite: ByteArray,
+            dodge_sprite: ByteArray,
         ) {
             let mut world = self.world_default();
+            assert!(self.is_caller_owner(), "unauthorised");
 
             let enemy_counter: EntityCounter = world.read_model(ENEMY_GID);
             let enemy_count = enemy_counter.count;
@@ -390,6 +411,8 @@ mod actions {
                                 attack_sprite,
                                 mugshot,
                                 hit_sprite,
+                                dash_sprite,
+                                dodge_sprite,
                                 ..x,
                             },
                         );
@@ -409,8 +432,11 @@ mod actions {
             attack_sprite: ByteArray,
             mugshot: ByteArray,
             hit_sprite: ByteArray,
+            dash_sprite: ByteArray,
+            dodge_sprite: ByteArray,
         ) {
             let mut world = self.world_default();
+            assert!(self.is_caller_owner(), "unauthorised");
 
             // Fetch player count from the counter model
             let player_counter: EntityCounter = world.read_model(PLAYER_GID);
@@ -451,6 +477,8 @@ mod actions {
                                 attack_sprite,
                                 mugshot,
                                 hit_sprite,
+                                dodge_sprite,
+                                dash_sprite,
                                 ..x,
                             },
                         );
@@ -615,26 +643,6 @@ mod actions {
                 panic!("Invalid color");
             }
 
-            // let mut defense_probabilities_red_blue = ArrayTrait::new();
-
-            // defense_probabilities_red_blue.append((50, 1)); // 50% chance for a block
-            // defense_probabilities_red_blue.append((30, 2)); // 30% chance for a glazed hit
-            // defense_probabilities_red_blue.append((20, 3)); // 20% chance for a complete hit
-
-            // let mut defense_probabilities_red_green = ArrayTrait::new();
-
-            // defense_probabilities_red_green.append((20, 1));
-            // defense_probabilities_red_green.append((30, 2));
-            // defense_probabilities_red_green.append((50, 3));
-
-            // let mut defense_probabilities_red_red = ArrayTrait::new();
-
-            // defense_probabilities_red_red.append((33, 1)); // 33% chance for a block
-            // defense_probabilities_red_red.append((33, 2)); // 33% chance for a glazed hit
-            // defense_probabilities_red_red.append((33, 3)); // 33% chance for a complete hit
-
-            // let mut probabilities: Array<(u32, felt252)> = ArrayTrait::new();
-
             let mut enemy_color: Array<felt252> = ArrayTrait::new();
             enemy_color.append('red');
             enemy_color.append('green');
@@ -669,48 +677,6 @@ mod actions {
                 player_data.health = self.safe_math_to_zero(player_data.health, 30)
             }
 
-            // if enemy_color[random_index] == enemy_color[1] {
-            //     probabilities = defense_probabilities_red_green;
-            // } else if enemy_color[random_index] == enemy_color[0] {
-            //     probabilities = defense_probabilities_red_red;
-            // } else {
-            //     probabilities = defense_probabilities_red_blue;
-            // }
-
-            // let (outcome, _get_userrandom): (felt252, u32) = self
-            //     .get_outcome(probabilities, user_address);
-
-            // // Simulate an attack, adjust demeanor, and apply damage
-            // let mut _user_enemy: UEnemy = player_data.current_enemy;
-
-            // Apply changes based on the outcome
-            // if outcome == 1 {
-            //     // Successful Attack
-            //     // player_data.health -= 20; // Standard damage
-            //     player_data.health = self.safe_math_to_zero(player_data.health, 20)
-            //     // player_data.demeanor -= 2;
-            // // player_data
-            // //     .demeanor = self
-            // //     .safe_math_to_zero(player_data.demeanor, 2)
-            // //     .try_into()
-            // //     .unwrap();
-            // } else if outcome == 2 {
-            //     // Glazed Attack
-            //     // player_data.health -= 5;
-            //     player_data.health = self.safe_math_to_zero(player_data.health, 5)
-            // } else if outcome == 3 {
-            //     // Critical Attack
-            //     // player_data.health -= 30;
-            //     player_data.health = self.safe_math_to_zero(player_data.health, 30)
-            //     // player_data.demeanor -= 2;
-            // // player_data
-            // //     .demeanor = self
-            // //     .safe_math_to_zero(player_data.demeanor, 2)
-            // //     .try_into()
-            // //     .unwrap();
-            // } else { // Default case, should not occur
-            // }
-
             // Ensure demeanor does not exceed maximum
             if player_data.health == 0 {
                 let e = GameEvent { id: user_address, won: false, died: true };
@@ -738,8 +704,6 @@ mod actions {
             let mut world = self.world_default();
             let playable_character: PlayableCharacter = world.read_model(skin_id);
             let enemy: UEnemy = world.read_model(1);
-
-            // let _ignored_player_fetch: Player = world.read_model(player);
 
             assert!(playable_character.health != 0, "player doesnt exist");
             assert!(enemy.health != 0, "enemy doesnt exist");
@@ -852,7 +816,7 @@ mod actions {
         }
 
 
-        fn is_owner(self: @ContractState) -> bool {
+        fn is_caller_owner(self: @ContractState) -> bool {
             let mut world = self.world_default();
 
             let current_contract_selector = world.resource_selector(@self.dojo_name());
@@ -861,18 +825,6 @@ mod actions {
         }
     }
 }
-// todo: add and emit events for wins and losses
-
-// #[cfg(test)]
-// mod tests {
-//     use super::actions::{get_user};
-
-//     #[test]
-//     fn it_works() {
-//         let user =
-//         get_user("0x03ACADC542Eb14fFeE3d2be0CC33672Cac74dbAAe1A7cbA2D0F1Ff76E81D16dC");
-//         println!(user);
-//     }
-// }
+// TODO: add and emit events for wins and losses
 
 

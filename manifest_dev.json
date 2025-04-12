@@ -1253,7 +1253,7 @@
   "contracts": [
     {
       "address": "0x3b937ad58e4fc6f2f517a317412c71971a35805d724911436b6625dba6d5743",
-      "class_hash": "0x512142a2fc19cd0913a325be094357062fd2f12f67a879ddb35c31a3e8d095e",
+      "class_hash": "0x3e80095971eccc1a59beb155ae38722a7133139807836dc250a0f5a6d3bfa22",
       "abi": [
         {
           "type": "impl",
@@ -1849,6 +1849,14 @@
                 {
                   "name": "hit_sprite",
                   "type": "core::byte_array::ByteArray"
+                },
+                {
+                  "name": "dash_sprite",
+                  "type": "core::byte_array::ByteArray"
+                },
+                {
+                  "name": "dodge_sprite",
+                  "type": "core::byte_array::ByteArray"
                 }
               ],
               "outputs": [],
@@ -1884,6 +1892,14 @@
                 },
                 {
                   "name": "hit_sprite",
+                  "type": "core::byte_array::ByteArray"
+                },
+                {
+                  "name": "dash_sprite",
+                  "type": "core::byte_array::ByteArray"
+                },
+                {
+                  "name": "dodge_sprite",
                   "type": "core::byte_array::ByteArray"
                 }
               ],
@@ -1924,6 +1940,30 @@
                 }
               ],
               "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "delete_character",
+              "inputs": [
+                {
+                  "name": "uid",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "delete_enemy",
+              "inputs": [
+                {
+                  "name": "uid",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
             }
           ]
         },
@@ -2054,6 +2094,8 @@
         "update_player_asset",
         "spawn",
         "special_attack",
+        "delete_character",
+        "delete_enemy",
         "upgrade"
       ]
     }
