@@ -67,6 +67,48 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
+	const build_actions_deleteCharacter_calldata = (uid: BigNumberish): DojoCall => {
+		return {
+			contractName: "actions",
+			entrypoint: "delete_character",
+			calldata: [uid],
+		};
+	};
+
+	const actions_deleteCharacter = async (snAccount: Account | AccountInterface, uid: BigNumberish) => {
+		try {
+			return await provider.execute(
+				snAccount,
+				build_actions_deleteCharacter_calldata(uid),
+				"lutte",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const build_actions_deleteEnemy_calldata = (uid: BigNumberish): DojoCall => {
+		return {
+			contractName: "actions",
+			entrypoint: "delete_enemy",
+			calldata: [uid],
+		};
+	};
+
+	const actions_deleteEnemy = async (snAccount: Account | AccountInterface, uid: BigNumberish) => {
+		try {
+			return await provider.execute(
+				snAccount,
+				build_actions_deleteEnemy_calldata(uid),
+				"lutte",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
 	const build_actions_entityCount_calldata = (gid: BigNumberish): DojoCall => {
 		return {
 			contractName: "actions",
@@ -135,6 +177,27 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
+	const build_actions_nextEnemy_calldata = (): DojoCall => {
+		return {
+			contractName: "actions",
+			entrypoint: "next_enemy",
+			calldata: [],
+		};
+	};
+
+	const actions_nextEnemy = async (snAccount: Account | AccountInterface) => {
+		try {
+			return await provider.execute(
+				snAccount,
+				build_actions_nextEnemy_calldata(),
+				"lutte",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
 	const build_actions_offensivePhase_calldata = (color: BigNumberish): DojoCall => {
 		return {
 			contractName: "actions",
@@ -148,6 +211,27 @@ export function setupWorld(provider: DojoProvider) {
 			return await provider.execute(
 				snAccount,
 				build_actions_offensivePhase_calldata(color),
+				"lutte",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const build_actions_respawn_calldata = (): DojoCall => {
+		return {
+			contractName: "actions",
+			entrypoint: "respawn",
+			calldata: [],
+		};
+	};
+
+	const actions_respawn = async (snAccount: Account | AccountInterface) => {
+		try {
+			return await provider.execute(
+				snAccount,
+				build_actions_respawn_calldata(),
 				"lutte",
 			);
 		} catch (error) {
@@ -198,19 +282,19 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
-	const build_actions_updateEnemyAsset_calldata = (id: BigNumberish, skin: ByteArray, folder: ByteArray, idleSprite: ByteArray, attackSprite: ByteArray, mugshot: ByteArray, hitSprite: ByteArray): DojoCall => {
+	const build_actions_updateEnemyAsset_calldata = (id: BigNumberish, skin: ByteArray, health: BigNumberish, folder: ByteArray, idleSprite: ByteArray, attackSprite: ByteArray, mugshot: ByteArray, hitSprite: ByteArray, dashSprite: ByteArray, dodgeSprite: ByteArray): DojoCall => {
 		return {
 			contractName: "actions",
 			entrypoint: "update_enemy_asset",
-			calldata: [id, skin, folder, idleSprite, attackSprite, mugshot, hitSprite],
+			calldata: [id, skin, health, folder, idleSprite, attackSprite, mugshot, hitSprite, dashSprite, dodgeSprite],
 		};
 	};
 
-	const actions_updateEnemyAsset = async (snAccount: Account | AccountInterface, id: BigNumberish, skin: ByteArray, folder: ByteArray, idleSprite: ByteArray, attackSprite: ByteArray, mugshot: ByteArray, hitSprite: ByteArray) => {
+	const actions_updateEnemyAsset = async (snAccount: Account | AccountInterface, id: BigNumberish, skin: ByteArray, health: BigNumberish, folder: ByteArray, idleSprite: ByteArray, attackSprite: ByteArray, mugshot: ByteArray, hitSprite: ByteArray, dashSprite: ByteArray, dodgeSprite: ByteArray) => {
 		try {
 			return await provider.execute(
 				snAccount,
-				build_actions_updateEnemyAsset_calldata(id, skin, folder, idleSprite, attackSprite, mugshot, hitSprite),
+				build_actions_updateEnemyAsset_calldata(id, skin, health, folder, idleSprite, attackSprite, mugshot, hitSprite, dashSprite, dodgeSprite),
 				"lutte",
 			);
 		} catch (error) {
@@ -219,19 +303,19 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
-	const build_actions_updatePlayerAsset_calldata = (id: BigNumberish, skin: ByteArray, folder: ByteArray, idleSprite: ByteArray, attackSprite: ByteArray, mugshot: ByteArray, hitSprite: ByteArray): DojoCall => {
+	const build_actions_updatePlayerAsset_calldata = (id: BigNumberish, skin: ByteArray, health: BigNumberish, folder: ByteArray, idleSprite: ByteArray, attackSprite: ByteArray, mugshot: ByteArray, hitSprite: ByteArray, dashSprite: ByteArray, dodgeSprite: ByteArray): DojoCall => {
 		return {
 			contractName: "actions",
 			entrypoint: "update_player_asset",
-			calldata: [id, skin, folder, idleSprite, attackSprite, mugshot, hitSprite],
+			calldata: [id, skin, health, folder, idleSprite, attackSprite, mugshot, hitSprite, dashSprite, dodgeSprite],
 		};
 	};
 
-	const actions_updatePlayerAsset = async (snAccount: Account | AccountInterface, id: BigNumberish, skin: ByteArray, folder: ByteArray, idleSprite: ByteArray, attackSprite: ByteArray, mugshot: ByteArray, hitSprite: ByteArray) => {
+	const actions_updatePlayerAsset = async (snAccount: Account | AccountInterface, id: BigNumberish, skin: ByteArray, health: BigNumberish, folder: ByteArray, idleSprite: ByteArray, attackSprite: ByteArray, mugshot: ByteArray, hitSprite: ByteArray, dashSprite: ByteArray, dodgeSprite: ByteArray) => {
 		try {
 			return await provider.execute(
 				snAccount,
-				build_actions_updatePlayerAsset_calldata(id, skin, folder, idleSprite, attackSprite, mugshot, hitSprite),
+				build_actions_updatePlayerAsset_calldata(id, skin, health, folder, idleSprite, attackSprite, mugshot, hitSprite, dashSprite, dodgeSprite),
 				"lutte",
 			);
 		} catch (error) {
@@ -250,6 +334,10 @@ export function setupWorld(provider: DojoProvider) {
 			buildCreateEnemyCalldata: build_actions_createEnemy_calldata,
 			defensivePhase: actions_defensivePhase,
 			buildDefensivePhaseCalldata: build_actions_defensivePhase_calldata,
+			deleteCharacter: actions_deleteCharacter,
+			buildDeleteCharacterCalldata: build_actions_deleteCharacter_calldata,
+			deleteEnemy: actions_deleteEnemy,
+			buildDeleteEnemyCalldata: build_actions_deleteEnemy_calldata,
 			entityCount: actions_entityCount,
 			buildEntityCountCalldata: build_actions_entityCount_calldata,
 			fetchEnemies: actions_fetchEnemies,
@@ -258,8 +346,12 @@ export function setupWorld(provider: DojoProvider) {
 			buildFetchPlayableCharactersCalldata: build_actions_fetchPlayableCharacters_calldata,
 			getUser: actions_getUser,
 			buildGetUserCalldata: build_actions_getUser_calldata,
+			nextEnemy: actions_nextEnemy,
+			buildNextEnemyCalldata: build_actions_nextEnemy_calldata,
 			offensivePhase: actions_offensivePhase,
 			buildOffensivePhaseCalldata: build_actions_offensivePhase_calldata,
+			respawn: actions_respawn,
+			buildRespawnCalldata: build_actions_respawn_calldata,
 			spawn: actions_spawn,
 			buildSpawnCalldata: build_actions_spawn_calldata,
 			specialAttack: actions_specialAttack,
