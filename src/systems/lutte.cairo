@@ -283,6 +283,7 @@ mod actions {
 
             player_details.health = current_player_details.max_health;
             player_details.current_enemy.health = current_enemy_details.max_health;
+            player_details.last_attack = false;
 
             world.write_model(@player_details);
         }
@@ -569,7 +570,7 @@ mod actions {
 
             // checks if player is fighing the boss
 
-            if player_data.current_enemy.level == 4 {
+            if player_data.current_enemy.level == 3 {
                 let (new_player_data, new_user_enemy) = self
                     .boss_enemy(player_data, playable_characters, user_enemy, user_address, color);
 
