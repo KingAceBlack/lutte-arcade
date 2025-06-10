@@ -1,65 +1,11 @@
-![Dojo Starter](./assets/cover.png)
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/mark-dark.svg">
-  <img alt="Dojo logo" align="right" width="120" src=".github/mark-light.svg">
-</picture>
+![start_plain](https://github.com/user-attachments/assets/a5685008-02fa-43db-a0e1-7f2bcb987953)
 
-<a href="https://twitter.com/dojostarknet">
-<img src="https://img.shields.io/twitter/follow/dojostarknet?style=social"/>
-</a>
-<a href="https://github.com/dojoengine/dojo">
-<img src="https://img.shields.io/github/stars/dojoengine/dojo?style=social"/>
-</a>
+Lutte Arcade is an onchain PvE adventure game where players progress through a map, ultimately completing the game by defeating the Final Boss.
 
-[![discord](https://img.shields.io/badge/join-dojo-green?logo=discord&logoColor=white)](https://discord.gg/PwDa2mKhR4)
-[![Telegram Chat][tg-badge]][tg-url]
+Gameplay Overview
 
-[tg-badge]: https://img.shields.io/endpoint?color=neon&logo=telegram&label=chat&style=flat-square&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fdojoengine
-[tg-url]: https://t.me/dojoengine
-
-# Dojo Starter: Official Guide
-
-A quickstart guide to help you build and deploy your first Dojo provable game.
-
-Read the full tutorial [here](https://dojoengine.org/tutorial/dojo-starter).
-
-## Running Locally
-
-#### Terminal one (Make sure this is running)
-
-```bash
-# Run Katana
-katana --disable-fee --allowed-origins "*"
-```
-
-#### Terminal two
-
-```bash
-# Build the example
-sozo build
-
-# Migrate the example
-sozo migrate apply
-
-# Start Torii
-# Replace <WORLD_ADDRESS> with the address of the deployed world from the previous step
-torii --world <WORLD_ADDRESS> --allowed-origins "*"
-```
-
----
-
-## Contribution
-
-1. **Report a Bug**
-
-    - If you think you have encountered a bug, and we should know about it, feel free to report it [here](https://github.com/dojoengine/dojo-starter/issues) and we will take care of it.
-
-2. **Request a Feature**
-
-    - You can also request for a feature [here](https://github.com/dojoengine/dojo-starter/issues), and if it's viable, it will be picked for development.
-
-3. **Create a Pull Request**
-    - It can't get better then this, your pull request will be appreciated by the community.
-
-Happy coding!
+The gameplay loop is simple and easy to learn, divided into two phases: Offensive and Defensive.
+In the Offensive phase, the player selects an attack and clicks the resolve button. The enemy is randomly assigned a defensive move, and the game resolves whether the attack was successful or not.
+In the Defensive phase, the player selects a defensive move, while the enemy is randomly assigned an attack. The game then resolves whether the player's defense successfully evaded the enemy's attack.
+The loop continues until either the player or the enemy dies.
